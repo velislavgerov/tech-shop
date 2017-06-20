@@ -18,6 +18,6 @@ def create_app(config_name):
     
     @app.route('/')
     def hello_world():
-        return 'Hello, World!\r\n{}'.format(models.Test.query.first())
+        return 'Hello, World!\r\n{}x'.format(str(models.Test.get_all()))
 
     return app
