@@ -62,7 +62,7 @@ class Product(db.Model):
     kind = db.Column(db.String(80), index=True, nullable=False)
     description = db.Column(db.Text, nullable=False)
     images = db.relationship('Image')
-    carts = db.relationship('Carts')
+    carts = db.relationship('Cart')
 
 class Image(db.Model):
     """Create an Image table."""
