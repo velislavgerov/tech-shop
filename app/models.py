@@ -4,7 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from app import db, login_manager
 
 class User(UserMixin, db.Model):
-    """Crete an User table."""
+    """Crete a User table."""
 
     # Ensures that the table will be named in plural
     __tablename__  = 'users'
@@ -15,6 +15,8 @@ class User(UserMixin, db.Model):
     last_name = db.Column(db.String(60), index=True)
     password_hash = db.Column(db.String(128))
     is_admin = db.Column(db.Boolean, default=False)
+    addresses = db.relationship('Address')
+    carts = db.relationship('Cart')
 
     @property
     def password(self):
@@ -38,3 +40,51 @@ class User(UserMixin, db.Model):
     def load_user(user_id):
         return User.query.get(int(user_id))
 
+class Address(db.Model):
+    """Create an Address table."""
+
+    __tablename__ = 'adresses'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    country = db.Column(db.String(50))
+    county = db.Column(db.String(80))
+    city = db.Column(db.String(80))
+    postcode = db.Column(db.String(16))
+
+class Product(db.Model):
+    """Create a Product table."""
+    
+    __tablename__ = 'products'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(80), index=True, nullable=False)
+    kind = db.Column(db.String(80), index=True, nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    images = db.relationship('Image')
+    carts = db.relationship('Carts')
+
+class Image(db.Model):
+    """Create an Image table."""
+
+    __tablename__ = 'images'
+
+    id = db.Column(db.Integer, primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('products.id'))
+    url = db.Column(db.Text, nullable=False)
+    is_main = db.Column(db.Boolean, default=False) # possibly bad design
+
+class Cart(db.Model):
+    """Create a Cart table."""
+
+    __tablename__ = 'carts'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    product_id = db.Column(db.Integer, db.ForeignKey('products.id'))
+    quantity = db.Column(db.Integer, default=1, nullable=False)
+
+# TODO:
+#class Order(db.Model):
+#    """Create an Order table."""
+#    pass
