@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
-    <title>{{ title }} | eShop</title>
+    <title>{{ title }} | E-commerce Website</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-<body>
+  </head>
+  <body>
     <nav class="navbar navbar-toggleable-md navbar-inverse bg-inverse fixed-top">
       <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -18,16 +18,31 @@
       <div class="collapse navbar-collapse" id="navbarsExampleDefault">
         <ul class="navbar-nav mr-auto">
           {% if current_user.is_authenticated %}
-          <li class="nav-item {{ 'active' if request.path == '/dashboard' }}">
-            <a class="nav-link" href="{{ url_for('home.dashboard') }}">Dashboard<span class="sr-only">(current)</span></a>
-          </li>
-          <li class="nav-link"><a><i class="fa fa-user"></i>  Hi, {{ current_user.first_name }}!</a></li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a>
-          </li>
+            {% if current_user.is_admin %}
+            <li class="nav-item {{ 'active' if request.path == '/admin/dashboard' }}">
+              <a class="nav-link" href="{{ url_for('home.admin_dashboard') }}">Dashboard<span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Inventory</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Customers</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Orders</a>
+            </li>
+            {% else %}    
+            <li class="nav-item {{ 'active' if request.path == '/dashboard' }}">
+              <a class="nav-link" href="{{ url_for('home.dashboard') }}">Shop<span class="sr-only">(current)</span></a>
+            </li>
+            {% endif %}
+            <li class="nav-link"><a><i class="fa fa-user"></i>  Hi, {{ current_user.first_name }}!</a></li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a>
+            </li>
           {% else %}    
           <li class="nav-item {{ 'active' if request.path == '/' }}">
-            <a class="nav-link" href="{{ url_for('home.homepage') }}">Home<span class="sr-only">(current)</span></a>
+            <a class="nav-link" href="{{ url_for('home.homepage') }}">Shop<span class="sr-only">(current)</span></a>
           </li>
           <li class="nav-item {{ 'active' if request.path == '/register' }}">
             <a class="nav-link" href="{{ url_for('auth.register') }}">Register</a>
@@ -48,10 +63,10 @@
     </nav> 
     <div class="container">
       <div class="mt-3">
-            <div class="wrapper">
-              {% block body %}
-              {% endblock %}
-              <div class="push"></div>
+        <div class="wrapper">
+          {% block body %}
+          {% endblock %}
+          <div class="push"></div>
        </div>      
       </div>
     </div>

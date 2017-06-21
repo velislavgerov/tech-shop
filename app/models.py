@@ -43,7 +43,7 @@ class User(UserMixin, db.Model):
 class Address(db.Model):
     """Create an Address table."""
 
-    __tablename__ = 'adresses'
+    __tablename__ = 'addresses'
     
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
