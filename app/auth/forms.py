@@ -14,7 +14,7 @@ class RegistrationForm(FlaskForm):
                                         EqualTo('confirm_password')
                                         ])
     confirm_password = PasswordField('Confirm Password')
-    recaptcha = RecaptchaField()
+    recaptcha = RecaptchaField('Are you a bot or a human?')
     submit = SubmitField('Register')
 
     def validate_email(self, field):
