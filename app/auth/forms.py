@@ -1,4 +1,4 @@
-from flask_wtf import FlaskForm, RecaptchaField
+from flask_wtf import FlaskForm, RecaptchaField, Recaptcha
 from wtforms import PasswordField, StringField, SubmitField, ValidationError
 from wtforms.validators import DataRequired, Email, EqualTo
 
@@ -14,7 +14,7 @@ class RegistrationForm(FlaskForm):
                                         EqualTo('confirm_password')
                                         ])
     confirm_password = PasswordField('Confirm Password')
-    recaptcha = RecaptchaField('Are you a bot or a human?')
+    recaptcha = RecaptchaField(validators=[Recaptcha('Are you a bot or a human?')])
     submit = SubmitField('Register')
 
     def validate_email(self, field):
