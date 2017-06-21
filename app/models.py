@@ -28,7 +28,7 @@ class User(UserMixin, db.Model):
 
     def verify_password(self, password):
         """Check if password matches actual password"""
-        return check_password_hash(password)
+        return check_password_hash(self.password_hash, password)
 
     def __repr__(self):
         return '<User: {} {}'.format(self.first_name, self.last_name)
