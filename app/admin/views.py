@@ -9,6 +9,7 @@ from .. import db
 from ..models import Product, Image
 
 from os.path import join, dirname, relpath
+from os import remove
 
 def check_admin():
     """
@@ -115,6 +116,13 @@ def delete_product(id):
     product = Product.query.get_or_404(id)
     db.session.delete(product)
     db.session.commit()
+    
+    # delete image file
+    try:
+       remove(join('app/static/uploads/', product.image))
+    except:
+        raise #TODO
+
     flash('You have successfully deleted the product.')
 
     # redirect to the products page
