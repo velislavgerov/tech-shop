@@ -58,9 +58,11 @@ class Product(db.Model):
     __tablename__ = 'products'
     
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(80), index=True, nullable=False)
+    name = db.Column(db.String(80), index=True, unique=True, nullable=False)
     kind = db.Column(db.String(80), index=True, nullable=False)
     description = db.Column(db.Text, nullable=False)
+    quantity = db.Column(db.Integer, default=1)
+    image = db.Column(db.String(80))
     images = db.relationship('Image')
     carts = db.relationship('Cart')
 

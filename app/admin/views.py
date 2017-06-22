@@ -1,11 +1,14 @@
 from flask import abort, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
 from werkzeug.utils import secure_filename
+from sqlalchemy.exc import IntegrityError
 
 from . import admin
 from .forms import ProductForm
 from .. import db
 from ..models import Product, Image
+
+from os.path import join, dirname, relpath
 
 def check_admin():
     """
@@ -38,19 +41,27 @@ def add_product():
 
     form = ProductForm()
     if form.validate_on_submit():
+        if form.image.data:
+            filename = secure_filename(form.image.data.filename)
+        else:
+            filename = None
         product = Product(name=form.name.data,
                             kind=form.kind.data,
-                            description=form.description.data)
+                            description=form.description.data,
+                            image=filename)
+        
         try:
             # add product to the database
             db.session.add(product)
             db.session.commit()
+            # handle images, maybe hash name?
+            form.image.data.save(join('app/static/uploads/',filename))
             flash('You have successfully added a new product')
-        except:
-            # in case product already exists
-            # TODO: catch diff errors
+        except IntegrityError:
             flash('Error: product name already exists.')
-
+        except:
+            raise
+        
         # redirect to products page
         return redirect(url_for('admin.list_products'))
     # load products template
@@ -71,9 +82,15 @@ def edit_product(id):
     product = Product.query.get_or_404(id)
     form = ProductForm(obj=product)
     if form.validate_on_submit():
+        if form.image.data:
+            filename = secure_filename(form.image.data.filename)
+        else:
+            filename = None
+        form.image.data.save(join('app/static/uploads/',filename))
         product.name = form.name.data
         product.kind = form.kind.data
         product.description = form.description.data
+        product.image = filename
         db.session.commit()
         flash('You have successfully edited the product.')
 
