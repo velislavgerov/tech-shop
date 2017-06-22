@@ -80,10 +80,11 @@ class Cart(db.Model):
     """Create a Cart table."""
 
     __tablename__ = 'carts'
-
+    __table_args__ = ( db.UniqueConstraint('user_id', 'product_id'), { } )
+    
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    product_id = db.Column(db.Integer, db.ForeignKey('products.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
     quantity = db.Column(db.Integer, default=1, nullable=False)
 
 # TODO:

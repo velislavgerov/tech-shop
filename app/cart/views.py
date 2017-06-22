@@ -29,14 +29,12 @@ def add_to_cart(id):
     # XXX: product_id should be checked
     cart = Cart(user_id=current_user.id,
                 product_id=id)
-    
     try:
-        db.session.add(cart)
+        db.session.merge(cart)
         db.session.commit()
+        flash('Item added.')
     except:
-        pass
-
-    flash('Item added.')
+        flash('Item already in your shopping cart.')
 
     return redirect(url_for('home.shop'))
 
@@ -46,6 +44,7 @@ def remove_item(id):
     """
     Removes an item from the cart
     """
+    # XXX: Pottential point of failure if two or more items were to be found
     item = Cart.query.filter(Cart.user_id == current_user.id).filter(Cart.product_id == id).one()
     print(item)
     db.session.delete(item)
