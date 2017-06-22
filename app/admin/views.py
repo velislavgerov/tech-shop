@@ -49,19 +49,18 @@ def add_product():
         product = Product(name=form.name.data,
                             kind=form.kind.data,
                             description=form.description.data,
-                            image=filename)
-        
+                            image=filename) 
         try:
             # add product to the database
             db.session.add(product)
             db.session.commit()
-            # handle images, maybe hash name?
+            # XXX: raw save might not be a good idea! (overwrite?)
             form.image.data.save(join('app/static/uploads/',filename))
             flash('You have successfully added a new product')
-        except IntegrityError:
+        except IntegrityError: # relies on unique name in the database!
             flash('Error: product name already exists.')
         except:
-            raise
+            raise # XXX: app will fail if we can't save the image
         
         # redirect to products page
         return redirect(url_for('admin.list_products'))
@@ -121,7 +120,7 @@ def delete_product(id):
     try:
        remove(join('app/static/uploads/', product.image))
     except:
-        raise #TODO
+        pass #XXX: We should know about this
 
     flash('You have successfully deleted the product.')
 

@@ -32,8 +32,8 @@
               <a class="nav-link" href="#">Orders</a>
             </li>
             {% else %}    
-            <li class="nav-item {{ 'active' if request.path == '/dashboard' }}">
-              <a class="nav-link" href="{{ url_for('home.dashboard') }}">Shop<span class="sr-only">(current)</span></a>
+            <li class="nav-item {{ 'active' if request.path == '/shop' }}">
+              <a class="nav-link" href="{{ url_for('home.shop') }}">Shop<span class="sr-only">(current)</span></a>
             </li>
             {% endif %}
             <li class="nav-link"><a><i class="fa fa-user"></i>  Hi, {{ current_user.first_name }}!</a></li>

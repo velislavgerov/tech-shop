@@ -2,3 +2,4 @@ __pycache__/
 .env
 *.swp
 app/static/uploads/
+heroku-util/

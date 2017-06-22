@@ -1,6 +1,8 @@
 from flask import abort, render_template
 from flask_login import current_user, login_required
 
+from ..models import Product
+
 from . import home
 
 @home.route('/')
@@ -10,13 +12,16 @@ def homepage():
     """
     return render_template('home/index.html', title="Welcome")
 
-@home.route('/dashboard')
+@home.route('/shop')
 @login_required
-def dashboard():
+def shop():
     """
     Render the dashboard template on the /dashboard route
     """
-    return render_template('home/dashboard.html', title="Dashboard")
+
+    products = Product.query.all()
+
+    return render_template('home/shop.html', products=products, title="Shop")
 
 @home.route('/admin/dashboard')
 @login_required
