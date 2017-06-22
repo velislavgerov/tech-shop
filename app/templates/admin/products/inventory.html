@@ -27,7 +27,7 @@
               <tbody>
               {% for product in products %}
                 <tr>
-                  <td><img src="{{ url_for('static', filename='uploads/' + product.image) if product.image }}" style="max-width:100%"></td>
+                        <td><img src="{{ url_for('static', filename='uploads/' + product.image) if product.image }}" style="max-width:100%" alt="{{ product.name }} Main Image"></td>
                   <td> {{ product.name }} </td>
                   <td> {{ product.kind }} </td>
                   <td> {{ product.description }} </td>

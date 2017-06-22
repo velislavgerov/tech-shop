@@ -5,8 +5,7 @@ from wtforms.validators import DataRequired
 
 import os
 
-UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER')
-ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
+ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 
 
 class ProductForm(FlaskForm):
