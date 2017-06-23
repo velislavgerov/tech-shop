@@ -1,4 +1,4 @@
-from flask import abort, render_template
+from flask import abort, render_template, request
 from flask_login import current_user, login_required
 
 from ..models import Product, Category
@@ -10,10 +10,12 @@ def homepage():
     """
     Render the homepage template on the / route
     """
-
+    search = request.args.get("search")
+    if search:
+        products = Product.query.filter(Product.name.like('%{}%'.format(search))).all()
+    else:
+        products = Product.query.all()
     categories = Category.query.all()
-    products = Product.query.all()
-    print(categories)
     return render_template('home/index.html', categories=categories, products=products, title="Welcome")
 
 @home.route('/admin/dashboard')
