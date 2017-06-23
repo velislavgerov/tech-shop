@@ -28,13 +28,12 @@ def add_to_cart(id):
     """
     Add a product to cart
     """
-    # XXX:check_admin - should they have a cart?
-    # XXX: product_id should be checked
+    # get item, reurns None if item does not exist already
     item = Cart.query.filter_by(user_id=current_user.id).filter_by(product_id=id).first()
     if item: # was found
         product = Product.query.filter_by(id=item.product_id).first()
         if item.quantity + 1 > product.quantity:
-            flash('You can not add more of this item.')
+            flash('You can not add more from this product.')
         else:
             item.quantity += 1
             db.session.merge(item)

@@ -36,3 +36,10 @@ def admin_dashboard():
         abort(403)
 
     return render_template('home/admin_dashboard.html', title="Dashboard")
+
+@home.route('/order')
+def order():
+    """
+    Render the order page
+    """
+    return render_template('home/order.html', title="Order")
