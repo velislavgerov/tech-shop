@@ -28,7 +28,7 @@
                 <tr>
                         <td><img src="{{ url_for('static', filename='uploads/' + product.main_image) if product.main_image }}" style="max-width:100%" alt="{{ product.name }} Main Image"></td>
                   <td>{{ product.name }}</td>
-                  <td>1</td>
+                  <td>{{ product.quantity }}</td>
                   <td>{{ product.price }}&#x20AC;</td>
                   <td>
                     <a href="{{ url_for('cart.remove_item', id=product.id) }}">
