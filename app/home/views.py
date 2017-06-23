@@ -10,12 +10,19 @@ def homepage():
     """
     Render the homepage template on the / route
     """
-    search = request.args.get("search")
+    search = request.args.get('search')
+    category = request.args.get('category')
+    categories = Category.query.all()
     if search:
         products = Product.query.filter(Product.name.like('%{}%'.format(search))).all()
     else:
         products = Product.query.all()
-    categories = Category.query.all()
+    if category:
+        try:
+            c_id = Category.query.filter_by(name = category).one()
+            products = Product.query.filter_by(category_id = c_id.id).all()
+        except:
+            raise
     return render_template('home/index.html', categories=categories, products=products, title="Welcome")
 
 @home.route('/admin/dashboard')

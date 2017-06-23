@@ -14,7 +14,6 @@ def list_items():
     """
     product_ids = Cart.query.filter_by(user_id = current_user.id).all()
     product_ids = [x.product_id for x in product_ids]
-    print(product_ids)
     products = Product.query.filter(Product.id.in_(product_ids)).all()
     total = None
     if products:
@@ -48,7 +47,6 @@ def remove_item(id):
     """
     # XXX: Pottential point of failure if two or more items were to be found
     item = Cart.query.filter(Cart.user_id == current_user.id).filter(Cart.product_id == id).one()
-    print(item)
     db.session.delete(item)
     db.session.commit()
     
