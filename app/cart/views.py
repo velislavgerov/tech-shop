@@ -55,9 +55,14 @@ def remove_item(id):
     """
     Removes an item from the cart
     """
-    # XXX: Pottential point of failure if two or more items were to be found
-    item = Cart.query.filter(Cart.user_id == current_user.id).filter(Cart.product_id == id).one()
-    db.session.delete(item)
-    db.session.commit()
+    item = Cart.query.filter(Cart.user_id == current_user.id).filter(Cart.product_id == id).first()
+    if item.quantity > 1:
+        item.quantity -= 1
+        db.session.merge(item)
+        db.session.commit()
+        flash('Decreased item count.')
+    elif item.quantity == 1:
+        db.session.delete(item)
+        db.session.commit()
     
     return redirect(url_for('cart.list_items'))
