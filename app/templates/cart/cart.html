@@ -17,27 +17,33 @@
               <thead>
                 <tr>
                   <th width="20%"> Image </th>
-                  <th width="10%"> Name </th>
-                  <th width="10%"> Kind </th>
-                  <th width="40%"> Description </th>
-                  <th width="10%"> Remove </th>
+                  <th width="20%"> Name </th>
+                  <th width="20%"> Quantity </th>
+                  <th width="20%"> Price </th>
+                  <th width="20%"> Remove </th>
                 </tr>
               </thead>
               <tbody>
               {% for product in products %}
                 <tr>
-                        <td><img src="{{ url_for('static', filename='uploads/' + product.image) if product.image }}" style="max-width:100%" alt="{{ product.name }} Main Image"></td>
-                  <td> {{ product.name }} </td>
-                  <td> {{ product.kind }} </td>
-                  <td> {{ product.description }} </td>
+                        <td><img src="{{ url_for('static', filename='uploads/' + product.main_image) if product.main_image }}" style="max-width:100%" alt="{{ product.name }} Main Image"></td>
+                  <td>{{ product.name }}</td>
+                  <td>1</td>
+                  <td>{{ product.price }}&#x20AC;</td>
                   <td>
                     <a href="{{ url_for('cart.remove_item', id=product.id) }}">
                       <i class="fa fa-trash"></i> Remove 
                     </a>
                   </td>
-
                 </tr>
               {% endfor %}
+                <tr>
+                    <td>Total:</td>
+                    <td></td>
+                    <td></td>
+                    <td>{{ total }}&#x20AC;</td>
+                    <td></td>
+                </tr>
               </tbody>
             </table>
           </div>

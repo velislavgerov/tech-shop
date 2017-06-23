@@ -16,8 +16,10 @@ def list_items():
     product_ids = [x.product_id for x in product_ids]
     print(product_ids)
     products = Product.query.filter(Product.id.in_(product_ids)).all()
-    
-    return render_template('cart/cart.html', products=products, title="Cart")
+    total = None
+    if products:
+        total = sum([x.price for x in products])
+    return render_template('cart/cart.html', products=products, total=total, title="Cart")
 
 @cart.route('/cart/add/<int:id>', methods=['GET','POST'])
 @login_required
