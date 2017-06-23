@@ -3,13 +3,15 @@ from flask_login import current_user, login_required
 from werkzeug.utils import secure_filename
 from sqlalchemy.exc import IntegrityError
 
-from . import admin
+from .. import admin
 from .forms import ProductForm
-from .. import db
-from ..models import Product, Image
+from ... import db
+from ...models import Product, Image, Category
 
 from os.path import join, dirname, relpath
 from os import remove
+from datetime import datetime
+
 
 def check_admin():
     """
@@ -44,20 +46,28 @@ def add_product():
     if form.validate_on_submit():
         if form.image.data:
             filename = secure_filename(form.image.data.filename)
+            form.image.data.save(join('app/static/uploads/',filename))
         else:
             filename = None
-        product = Product(name=form.name.data,
-                            kind=form.kind.data,
+        product = Product(category_id=form.category.data.id,
+                            name=form.name.data,
                             description=form.description.data,
-                            image=filename) 
+                            main_image=filename,
+                            price=form.price.data,
+                            quantity=form.quantity.data,
+                            added_by=current_user.email,
+                            added_at=datetime.utcnow(),
+                            updated_by=current_user.email,
+                            updated_at=datetime.utcnow()
+                            )
         try:
             # add product to the database
             db.session.add(product)
             db.session.commit()
             # XXX: raw save might not be a good idea! (overwrite?)
-            form.image.data.save(join('app/static/uploads/',filename))
             flash('You have successfully added a new product')
         except IntegrityError: # relies on unique name in the database!
+            raise
             flash('Error: product name already exists.')
         except:
             raise # XXX: app will fail if we can't save the image
@@ -84,13 +94,18 @@ def edit_product(id):
     if form.validate_on_submit():
         if form.image.data:
             filename = secure_filename(form.image.data.filename)
+            form.image.data.save(join('app/static/uploads/',filename))
+            product.main_image = filename
         else:
             filename = None
-        form.image.data.save(join('app/static/uploads/',filename))
+        # TODO: Should delete old one or have a better way to manage images
         product.name = form.name.data
-        product.kind = form.kind.data
-        product.description = form.description.data
-        product.image = filename
+        product.category_id=form.category.data.id,
+        product.description=form.description.data,
+        product.price=form.price.data,
+        product.quantity=form.quantity.data,
+        product.updated_by=current_user.email,
+        product.updated_at=datetime.utcnow()
         db.session.commit()
         flash('You have successfully edited the product.')
 
@@ -98,7 +113,9 @@ def edit_product(id):
         return redirect(url_for('admin.list_products'))
 
     form.name.data = product.name
-    form.kind.data = product.kind
+    form.category.data = Category.query.filter(Category.id==product.category_id).one()
+    form.price.data = product.price
+    form.quantity.data = product.quantity
     form.description.data = product.description
     return render_template('admin/products/product.html', action="Edit",
                            add_product=add_product, form=form,

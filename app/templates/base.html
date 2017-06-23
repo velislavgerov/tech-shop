@@ -8,42 +8,43 @@
     <title>{{ title }} | E-commerce Website</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
   </head>
   <body>
-    <nav class="navbar navbar-toggleable-md navbar-inverse bg-inverse fixed-top">
+    <nav class="navbar navbar-toggleable-md navbar-light bg-faded fixed-top">
+      <div class="container">
       <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <a class="navbar-brand" href="{{ url_for('home.homepage') }}">E-commerce Website</a>
       <div class="collapse navbar-collapse" id="navbarsExampleDefault">
         <ul class="navbar-nav mr-auto">
-          {% if current_user.is_authenticated %}
-            {% if current_user.is_admin %}
-            <li class="nav-item {{ 'active' if request.path == '/admin/dashboard' }}">
+          {% if current_user.is_authenticated and current_user.is_admin %}
+          <li class="nav-item {{ 'active' if request.path == '/admin/dashboard' }}">
               <a class="nav-link" href="{{ url_for('home.admin_dashboard') }}">Dashboard<span class="sr-only">(current)</span></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('admin.list_products') }}">Inventory</a>
+              <a class="nav-link" href="{{ url_for('admin.list_products') }}">Products</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Customers</a>
+              <a class="nav-link" href="{{ url_for('admin.list_categories') }}">Categories</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="#">Orders</a>
             </li>
-            {% else %}    
-            <li class="nav-item {{ 'active' if request.path == '/shop' }}">
-              <a class="nav-link" href="{{ url_for('home.shop') }}">Shop<span class="sr-only">(current)</span></a>
-            </li>
-            {% endif %}
-            <li class="nav-link"><a><i class="fa fa-user"></i>  Hi, {{ current_user.first_name }}!</a></li>
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a>
-            </li>
-          {% else %}    
-          <li class="nav-item {{ 'active' if request.path == '/' }}">
-            <a class="nav-link" href="{{ url_for('home.homepage') }}">Shop<span class="sr-only">(current)</span></a>
+        {% endif %}
+        </ul>
+        <ul class="navbar-nav navbar-right">
+          <li class="nav nav-item {{ 'active' if request.path == '/cart' }}">
+            <a class="nav-link" href="{{ url_for('cart.list_items') }}"><span class="fa fa-shopping-cart"></span> Shopping Cart</a>
           </li>
+          {% if current_user.is_authenticated %}
+          <li class="nav-link">
+            <a><i class="fa fa-user"></i>  Hi, {{ current_user.first_name }}!</a></li>
+          <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a>
+          </li>
+          {% else %}
           <li class="nav-item {{ 'active' if request.path == '/register' }}">
             <a class="nav-link" href="{{ url_for('auth.register') }}">Register</a>
           </li>
@@ -51,22 +52,15 @@
             <a class="nav-link" href="{{ url_for('auth.login') }}">Login</a>
           </li>
           {% endif %}
-          <li class="nav-item {{ 'active' if request.path == '/cart' }}">
-            <a class="nav-link" href="{{ url_for('cart.list_items') }}">My Cart</a>
-          </li> 
         </ul>
-        <form class="form-inline my-2 my-lg-0">
-          <input class="form-control mr-sm-2" type="text" placeholder="Search">
-          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-        </form>
       </div>
     </nav> 
+     </div>
     <div class="container">
-      <div class="mt-3">
         <div class="wrapper">
           {% block body %}
           {% endblock %}
-          <div class="push"></div>
+         <div class="push"></div>
        </div>      
       </div>
     </div>

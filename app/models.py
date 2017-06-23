@@ -15,7 +15,7 @@ class User(UserMixin, db.Model):
     last_name = db.Column(db.String(60), index=True)
     password_hash = db.Column(db.String(128))
     is_admin = db.Column(db.Boolean, default=False)
-    addresses = db.relationship('Address')
+    #addresses = db.relationship('Address')
     carts = db.relationship('Cart')
 
     @property
@@ -58,13 +58,53 @@ class Product(db.Model):
     __tablename__ = 'products'
     
     id = db.Column(db.Integer, primary_key=True)
+    category_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
+    subcategory_id = db.Column(db.Integer, db.ForeignKey('subcategories.id'))
+    supplier_id = db.Column(db.Integer, db.ForeignKey('suppliers.id'))
     name = db.Column(db.String(80), index=True, unique=True, nullable=False)
-    kind = db.Column(db.String(80), index=True, nullable=False)
     description = db.Column(db.Text, nullable=False)
+    main_image = db.Column(db.String(80))
+    price = db.Column(db.Numeric(10,2), index=True, nullable=False)
     quantity = db.Column(db.Integer, default=1)
-    image = db.Column(db.String(80))
+    added_by = db.Column(db.String(80), nullable=False)
+    added_at = db.Column(db.Date(), nullable=False)
+    # last updates
+    updated_by = db.Column(db.String(80), nullable=False)
+    updated_at = db.Column(db.Date(), nullable=False)
     images = db.relationship('Image')
     carts = db.relationship('Cart')
+
+class Supplier(db.Model):
+    """Create a Supplier table"""
+    # XXX: What about distributors?
+
+    __tablename__ = 'suppliers'
+
+    id = db.Column(db.Integer, primary_key=True)
+    main_image = db.Column(db.Integer, db.ForeignKey('images.id'))
+    name = db.Column(db.String(80), index=True, unique=True, nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    website_url = db.Column(db.Text)
+
+
+class Category(db.Model):
+    """Create a Category table."""
+    
+    __tablename__ = 'categories'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(80), index=True, unique=True, nullable=False)
+    description = db.Column(db.Text(), nullable=False)
+
+class Subategory(db.Model):
+    """Create a Subategory table."""
+    
+    __tablename__ = 'subcategories'
+
+    id = db.Column(db.Integer, primary_key=True)
+    category_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
+    name = db.Column(db.String(80), index=True, unique=True, nullable=False)
+    description = db.Column(db.Text(), nullable=False)
 
 class Image(db.Model):
     """Create an Image table."""
@@ -73,8 +113,8 @@ class Image(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     product_id = db.Column(db.Integer, db.ForeignKey('products.id'))
-    url = db.Column(db.Text, nullable=False)
-    is_main = db.Column(db.Boolean, default=False) # possibly bad design
+    filename = db.Column(db.Text, nullable=False)
+    description = db.Column(db.Text)
 
 class Cart(db.Model):
     """Create a Cart table."""

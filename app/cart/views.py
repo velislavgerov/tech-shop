@@ -36,7 +36,7 @@ def add_to_cart(id):
     except:
         flash('Item already in your shopping cart.')
 
-    return redirect(url_for('home.shop'))
+    return redirect(url_for('home.homepage'))
 
 @cart.route('/cart/remove/<int:id>', methods=['GET','POST'])
 @login_required
