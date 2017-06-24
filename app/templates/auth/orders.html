@@ -23,9 +23,10 @@
     <table class="table table-responsive">
         <thead>
            <tr>
-             <th > OrderId</th>
-             <th > Date </th>
-             <th > Status </th>
+             <th>OrderId</th>
+             <th>Date</th>
+             <th>Status</th>
+             <th>Message</th>
             </tr>
               </thead>
               <tbody>
@@ -34,10 +35,11 @@
                   <td> {{ order.id }} </td>
                   <td> {{ order.created_at }} </td>
                   <td> {{ order.status.value }} </td>
-                </tr>
+                  <td>{{ order.message }} </td>
+              </tr>
               {% endfor %}
               </tbody>
-            </table>
+        </table>
   </div>
 </div>
 {% endblock %}
