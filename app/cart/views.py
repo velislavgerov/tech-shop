@@ -13,14 +13,16 @@ def list_items():
     """
     List all items in cart
     """
-    product_ids = Cart.query.filter_by(user_id = current_user.id).all()
-    product_ids = {x.product_id: x.quantity for x in product_ids}
-    products = Product.query.filter(Product.id.in_(list(product_ids.keys()))).all()
+    cart_items = Cart.query.filter_by(user_id=current_user.id).all()
+    quantities = {x.product_id: x.quantity for x in cart_items}
+    products = Product.query.filter(Product.id.in_(list(quantities.keys()))).all()
     for x in products:
-        x.quantity = product_ids[x.id]
+        q = quantities[x.id]
+        x.quantity = q
+        x.price = q*x.price
     total = None
     if products:
-        total = sum([x.price*x.quantity for x in products])
+        total = sum([x.price for x in products])
     return render_template('cart/cart.html', products=products, total=total, title="Cart")
 
 @cart.route('/cart/add/<int:id>', methods=['GET','POST'])
@@ -64,6 +66,7 @@ def remove_item(id):
         try:
             db.session.delete(item)
             db.session.commit()
+            flash('Item removed.')
         except:
             flash('Sorry, you can\'t do that at the moment.')
     

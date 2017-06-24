@@ -3,6 +3,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from app import db, login_manager
 
+from enum import Enum
+
 class User(UserMixin, db.Model):
     """Crete a User table."""
 
@@ -131,7 +133,46 @@ class Cart(db.Model):
     product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
     quantity = db.Column(db.Integer, default=1, nullable=False)
 
-# TODO:
-#class Order(db.Model):
-#    """Create an Order table."""
-#    pass
+class OrderStatus(Enum):
+    """Enum type to hold order statuses"""
+    RECV = "Order created"
+    PAID = "Payment confirmed"
+    DISP = "Dispatching"
+    SENT = "Delivering"
+    DLVD = "Delivered"
+
+class OrderDetail(db.Model):
+    """Create an OrderDetail table."""
+   
+    __tablename__ = 'orders_detail'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(60), index=True, unique=True)
+    first_name = db.Column(db.String(60), index=True)
+    last_name = db.Column(db.String(60), index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    tel_number = db.Column(db.Text, nullable=False)
+    address_line_1 = db.Column(db.Text, nullable=False)
+    address_line_2 =  db.Column(db.Text)
+    city = db.Column(db.String(80), nullable=False)
+    county = db.Column(db.String(80), nullable=False)
+    postcode = db.Column(db.String(16), nullable=False)
+    country = db.Column(db.String(50), nullable=False)
+    message = db.Column(db.Text)
+    created_at = db.Column(db.Date(), nullable=False)
+    status = db.Column(db.Enum(OrderStatus), default=OrderStatus.RECV)
+
+class OrderItem(db.Model):
+    """Create an OrderItem table."""
+
+    __tablename__ = 'orders_items'
+    __table_args__ = ( db.UniqueConstraint('user_id', 'product_id', 'order_id'), { } )
+
+    id = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.Integer, db.ForeignKey('orders_detail.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
+    quantity = db.Column(db.Integer, default=1, nullable=False)
+
+
+

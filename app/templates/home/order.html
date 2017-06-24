@@ -7,17 +7,17 @@
   <br/>
     {{ utils.flashed_messages() }}
   <br/>
-  <h1 style="text-align:center;">Confirm Order</h1>
+  <h1 style="text-align:center;">Create Order</h1>
   <hr class="intro-divider">
   <br/>
   <div class="row">  
     <div class="col-lg-6 col-md-12 col-sm-12">
-      <h4>Delivery Details</h4>
+      <h4>Details</h4>
       <br/>
       {{ wtf.quick_form(form) }}
     </div>
     <div class="col-lg-6 col-md-12 col-sm-12">
-      <h4>Your Order</h4>
+      <h4>Products</h4>
         {% if products %}
         </br>
         <table class="table table-responsive">
@@ -48,7 +48,7 @@
        </table>
      {% else %}
        <div style="text-align: center">
-         <h4> Your shopping cart is empty. </h4>
+         <h4> You have no products to order. </h4>
          <hr class="intro-divider">
        </div>
      {% endif %} 
