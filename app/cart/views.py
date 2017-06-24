@@ -91,6 +91,22 @@ def remove_one_item(id):
 
     return redirect(url_for('cart.list_items'))
 
+@cart.route('/cart/empty', methods=['GET','POST'])
+@login_required
+def empty_cart():
+    """
+    Removes all items from user's cart
+    """
+    try:
+        Cart.query.filter_by(user_id=current_user.id).delete()
+        db.session.commit()
+        flash('You have emptied your cart.')
+    except:
+        raise
+        flash('Sorry, you can\'t do that at the moment.')
+    
+    return redirect(url_for('cart.list_items'))
+
 def handle_item(id, do_work, not_found=None):
     """
     Helper function to handle our work with the cart items.
