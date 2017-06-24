@@ -19,6 +19,7 @@ class OrderDetailForm(FlaskForm):
     postcode = StringField('Postcode', validators=[DataRequired()])
     country = StringField('Country', validators=[DataRequired()])
     message = TextField('Message', widget=TextArea())
-    recaptcha = RecaptchaField(validators=[Recaptcha('Are you a bot or a human?')])
+    #recaptcha = RecaptchaField(validators=[Recaptcha('Are you a bot or a human?')])
+    submit = SubmitField('Confirm')
 
 

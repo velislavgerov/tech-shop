@@ -147,7 +147,7 @@ class OrderDetail(db.Model):
     __tablename__ = 'orders_detail'
     
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(60), index=True, unique=True)
+    email = db.Column(db.String(60), index=True)
     first_name = db.Column(db.String(60), index=True)
     last_name = db.Column(db.String(60), index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))

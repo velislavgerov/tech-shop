@@ -5,7 +5,7 @@ from . import auth
 from .forms import LoginForm, RegistrationForm, AccountForm
 
 from .. import db
-from ..models import User, Address
+from ..models import User, Address, OrderDetail
 
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
@@ -69,6 +69,18 @@ def account():
         form.country.data = address.country
 
     return render_template('auth/account.html', form=form, title='Account')
+
+@auth.route('/orders')
+@login_required
+def orders():
+    """
+    List all departments
+    """
+
+    orders = OrderDetail.query.all()
+
+    return render_template('auth/orders.html', orders=orders, title="Orders")
+
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():

@@ -1,0 +1,43 @@
+{% import "bootstrap/utils.html" as utils %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% extends "base.html" %}
+{% block title %}Account{% endblock %}
+{% block body %}
+<div class="content-section">
+  <br/>
+    {{ utils.flashed_messages() }}
+  <br/>
+ <ul class="nav nav-tabs">
+  <li class="nav-item">
+    <a class="nav-link" href="{{url_for('auth.account')}}">Account</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link active" href="#">Orders</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link disabled" href="#">Something else</a>
+  </li>
+ </ul> 
+  <div class="center">
+    <br/>
+    <table class="table table-responsive">
+        <thead>
+           <tr>
+             <th > OrderId</th>
+             <th > Date </th>
+             <th > Status </th>
+            </tr>
+              </thead>
+              <tbody>
+              {% for order in orders %}
+              <tr>
+                  <td> {{ order.id }} </td>
+                  <td> {{ order.created_at }} </td>
+                  <td> {{ order.status.value }} </td>
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+  </div>
+</div>
+{% endblock %}
