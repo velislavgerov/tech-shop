@@ -27,6 +27,6 @@ class ProductForm(FlaskForm):
     quantity = IntegerField('Quantity',validators=[DataRequired()], widget=Input('number'))
     image = FileField('Image File', 
                     validators=[FileAllowed(ALLOWED_EXTENSIONS,'Images only!')])
-    category = QuerySelectField('Category', query_factory=enabled_categories, get_label='name', allow_blank=True) 
+    category = QuerySelectField('Category',validators=[DataRequired()], query_factory=enabled_categories, get_label='name', allow_blank=True) 
     supplier = QuerySelectField('Supplier', query_factory=enabled_suppliers, get_label='name', allow_blank=True)
     submit = SubmitField('Submit')
