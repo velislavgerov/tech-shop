@@ -1,5 +1,6 @@
-from flask import flash, redirect, render_template, url_for
+from flask import flash, redirect, render_template, url_for, request
 from flask_login import current_user, login_required
+from sqlalchemy.exc import IntegrityError
 
 from . import cart
 
@@ -28,9 +29,7 @@ def add_to_cart(id):
     """
     Add a product to cart
     """
-    # get item, reurns None if item does not exist already
-    item = Cart.query.filter_by(user_id=current_user.id).filter_by(product_id=id).first()
-    if item: # was found
+    def do_work(item):
         product = Product.query.filter_by(id=item.product_id).first()
         if item.quantity + 1 > product.quantity:
             flash('You can not add more from this product.')
@@ -39,14 +38,21 @@ def add_to_cart(id):
             db.session.merge(item)
             db.session.commit()
             flash('Item updated.')
-    else:
-        item = Cart(user_id=current_user.id,
-                product_id=id)
-        db.session.add(item)
-        db.session.commit()
-        flash('Item added.')
+    
+    def not_found():
+        item = Cart(user_id=current_user.id, product_id=id)
+        try:
+            db.session.add(item)
+            db.session.commit()
+            flash('Item added.')
+        except IntegrityError:
+            flash('Invalid item.')
+        except:
+            flash('Sorry, you can\'t do that right now.')
 
-    return redirect(url_for('home.homepage'))
+    handle_item(id, do_work, not_found) 
+ 
+    return redirect(url_for('cart.list_items'))
 
 @cart.route('/cart/remove/<int:id>', methods=['GET','POST'])
 @login_required
@@ -54,51 +60,52 @@ def remove_item(id):
     """
     Removes an item from the cart
     """
-    item = Cart.query.filter(Cart.user_id == current_user.id).filter(Cart.product_id == id).first()
-    if item:
+    def do_work(item):
         try:
             db.session.delete(item)
             db.session.commit()
         except:
             flash('Sorry, you can\'t do that at the moment.')
-    else:
-        flash('Item not found in your cart.')
+    
+    handle_item(id, do_work)
     
     return redirect(url_for('cart.list_items'))
 
-@cart.route('/cart/decrement/<int:id>', methods=['GET','POST'])
+@cart.route('/cart/remove/one/<int:id>', methods=['GET','POST'])
 @login_required
-def decrement_item(id):
+def remove_one_item(id):
     """
     Decrements item count from the cart
     """
-    item = Cart.query.filter(Cart.user_id == current_user.id).filter(Cart.product_id == id).first()
-    if item.quantity > 1:
-        item.quantity -= 1
-        db.session.merge(item)
-        db.session.commit()
-        flash('Decreased item count.')
-    elif item.quantity == 1:
-        db.session.delete(item)
-        db.session.commit()
+    def do_work(item):
+        if item.quantity > 1:
+            item.quantity -= 1
+            db.session.merge(item)
+            db.session.commit()
+            flash('Decreased item >count.')
+        elif item.quantity == 1:
+            db.session.delete(item)
+            db.session.commit()
     
+    handle_item(id, do_work)
+
     return redirect(url_for('cart.list_items'))
 
-@cart.route('/cart/increment/<int:id>', methods=['GET','POST'])
-@login_required
-def increment_item(id):
+def handle_item(id, do_work, not_found=None):
     """
-    Removes an item from the cart
+    Helper function to handle our work with the cart items.
     """
+    # XXX: There is just one intended way for this to work, but should I handle
+    # errors?  
     item = Cart.query.filter(Cart.user_id == current_user.id).filter(Cart.product_id == id).first()
-    if item.quantity > 1:
-        item.quantity -= 1
-        db.session.merge(item)
-        db.session.commit()
-        flash('Decreased item count.')
-    elif item.quantity == 1:
-        db.session.delete(item)
-        db.session.commit()
-    
-    return redirect(url_for('cart.list_items'))
+    if item:
+        # do the work
+        do_work(item)
+    else:
+        if not not_found:
+            flash('Item not found in your cart.')
+        else:
+            not_found()
+        
+
 

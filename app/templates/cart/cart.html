@@ -31,10 +31,10 @@
                   <td>{{ product.quantity }}</td>
                   <td>{{ product.price }}&#x20AC;</td>
                   <td>
-                    <a href="{{ url_for('cart.remove_item', id=product.id) }}">
+                    <a href="{{ url_for('cart.add_to_cart', id=product.id) }}">
                       <i class="fa fa-plus"></i>
                     </a>
-                    <a href="{{ url_for('cart.remove_item', id=product.id) }}">
+                    <a href="{{ url_for('cart.remove_one_item', id=product.id) }}">
                       <i class="fa fa-minus"></i>
                     </a> 
                     <a href="{{ url_for('cart.remove_item', id=product.id) }}">
