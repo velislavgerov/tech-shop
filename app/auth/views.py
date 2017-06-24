@@ -1,11 +1,11 @@
 from flask import flash, redirect, render_template, url_for
-from flask_login import login_required, login_user, logout_user
+from flask_login import login_required, login_user, logout_user, current_user
 
 from . import auth
-from .forms import LoginForm, RegistrationForm
+from .forms import LoginForm, RegistrationForm, AccountForm
 
 from .. import db
-from ..models import User
+from ..models import User, Address
 
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
@@ -30,6 +30,45 @@ def register():
 
     # load registration template
     return render_template('auth/register.html', form=form, title='Register')
+
+@auth.route('/account', methods=['GET','POST'])
+@login_required
+def account():
+    """
+    Handles requests to the user account page
+    """
+    form = AccountForm()
+    address = Address.query.filter_by(user_id=current_user.id).first()
+    if form.validate_on_submit():
+        if not address:
+            address = Address(user_id=current_user.id)
+        address.tel_number = form.tel_number.data
+        address.address_line_1 = form.address_line_1.data
+        address.address_line_2 = form.address_line_2.data
+        address.city = form.city.data
+        address.county = form.county.data
+        address.postcode = form.postcode.data
+        address.country = form.country.data
+        try:
+            db.session.merge(address)
+            db.session.commit()
+            flash('You have succesfully updated your details.')
+        except:
+            flash('Sorry, you can\'t do this right now.')
+    
+    form.email.data = current_user.email
+    form.first_name.data = current_user.first_name
+    form.last_name.data = current_user.last_name
+    if address:
+        form.tel_number.data = address.tel_number
+        form.address_line_1.data = address.address_line_1
+        form.address_line_2.data = address.address_line_2
+        form.city.data = address.city
+        form.county.data = address.county
+        form.postcode.data = address.postcode
+        form.country.data = address.country
+
+    return render_template('auth/account.html', form=form, title='Account')
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():

@@ -1,14 +1,15 @@
 from flask_wtf import FlaskForm, RecaptchaField, Recaptcha
 from wtforms import PasswordField, StringField, SubmitField, ValidationError
 from wtforms.validators import DataRequired, Email, EqualTo
+from wtforms.fields.html5 import TelField
 
 from ..models import User
 
 class RegistrationForm(FlaskForm):
     """Form for users to create new account."""
     email = StringField('Email', validators=[DataRequired(), Email()])
-    first_name = StringField('First Name', validators=[DataRequired()])
-    last_name = StringField('Last Name', validators=[DataRequired()])
+    first_name = StringField('First name', validators=[DataRequired()])
+    last_name = StringField('Last name', validators=[DataRequired()])
     password = PasswordField('Password', validators=[
                                         DataRequired(),
                                         EqualTo('confirm_password')
@@ -27,7 +28,21 @@ class LoginForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
     submit = SubmitField('Login')
 
-#class ProfileForm(FlaskForm):
+class AccountForm(FlaskForm):
+    """Form for users to edit their account."""
+    email = StringField('Email', render_kw={'readonly': True})
+    first_name = StringField('First name', render_kw={'readonly': True})
+    last_name = StringField('Last name', render_kw={'readonly': True})
+    tel_number = TelField('Phone number')
+    address_line_1 = StringField('Address Line 1', validators=[DataRequired()])
+    address_line_2 = StringField('Address Line 2 (optional)')
+    city = StringField('Town/City', validators=[DataRequired()])
+    county = StringField('County', validators=[DataRequired()])
+    postcode = StringField('Postcode', validators=[DataRequired()])
+    country = StringField('Country', validators=[DataRequired()])
+    recaptcha = RecaptchaField(validators=[Recaptcha('Are you a bot or a human?')])
+    submit = SubmitField('Update')
+
 
 #class AddressForm(FlaskForm):
 #    """Form fo user's addresses"""

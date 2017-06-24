@@ -46,11 +46,15 @@ class Address(db.Model):
     __tablename__ = 'addresses'
     
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    country = db.Column(db.String(50))
-    county = db.Column(db.String(80))
-    city = db.Column(db.String(80))
-    postcode = db.Column(db.String(16))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True) # remove pk for multiple addresses
+    tel_number = db.Column(db.Text, nullable=False)
+    address_line_1 = db.Column(db.Text, nullable=False)
+    address_line_2 =  db.Column(db.Text)
+    city = db.Column(db.String(80), nullable=False)
+    county = db.Column(db.String(80), nullable=False)
+    postcode = db.Column(db.String(16), nullable=False)
+    country = db.Column(db.String(50), nullable=False)
+            
 
 class Product(db.Model):
     """Create a Product table."""
