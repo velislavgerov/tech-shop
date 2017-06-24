@@ -82,7 +82,7 @@ def remove_one_item(id):
             item.quantity -= 1
             db.session.merge(item)
             db.session.commit()
-            flash('Decreased item >count.')
+            flash('Item updated.')
         elif item.quantity == 1:
             db.session.delete(item)
             db.session.commit()
