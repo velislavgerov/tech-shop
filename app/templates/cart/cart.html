@@ -11,7 +11,7 @@
         <br/>
         <h1 style="text-align:center;">Shopping Cart</h1>
         {% if products %}
-          <hr class="intro-divider">
+            </br>
           <div class="center">
             <table class="table table-responsive">
               <thead>
@@ -46,7 +46,7 @@
                 <tr>
                     <td></td>
                     <td></td>
-                    <td>Total:</td>
+                    <td>Subtotal:</td>
                     <td>{{ total }}&#x20AC;</td>
                     <td><a href="{{ url_for('cart.empty_cart') }}">
                       <i class="fa fa-trash"></i> Empty 
