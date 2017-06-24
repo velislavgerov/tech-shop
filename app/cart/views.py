@@ -55,6 +55,24 @@ def remove_item(id):
     Removes an item from the cart
     """
     item = Cart.query.filter(Cart.user_id == current_user.id).filter(Cart.product_id == id).first()
+    if item:
+        try:
+            db.session.delete(item)
+            db.session.commit()
+        except:
+            flash('Sorry, you can\'t do that at the moment.')
+    else:
+        flash('Item not found in your cart.')
+    
+    return redirect(url_for('cart.list_items'))
+
+@cart.route('/cart/decrement/<int:id>', methods=['GET','POST'])
+@login_required
+def decrement_item(id):
+    """
+    Decrements item count from the cart
+    """
+    item = Cart.query.filter(Cart.user_id == current_user.id).filter(Cart.product_id == id).first()
     if item.quantity > 1:
         item.quantity -= 1
         db.session.merge(item)
@@ -65,3 +83,22 @@ def remove_item(id):
         db.session.commit()
     
     return redirect(url_for('cart.list_items'))
+
+@cart.route('/cart/increment/<int:id>', methods=['GET','POST'])
+@login_required
+def increment_item(id):
+    """
+    Removes an item from the cart
+    """
+    item = Cart.query.filter(Cart.user_id == current_user.id).filter(Cart.product_id == id).first()
+    if item.quantity > 1:
+        item.quantity -= 1
+        db.session.merge(item)
+        db.session.commit()
+        flash('Decreased item count.')
+    elif item.quantity == 1:
+        db.session.delete(item)
+        db.session.commit()
+    
+    return redirect(url_for('cart.list_items'))
+

@@ -20,7 +20,7 @@
                   <th width="20%"> Name </th>
                   <th width="20%"> Quantity </th>
                   <th width="20%"> Price </th>
-                  <th width="20%"> Remove </th>
+                  <th width="20%"> Options </th>
                 </tr>
               </thead>
               <tbody>
@@ -31,6 +31,12 @@
                   <td>{{ product.quantity }}</td>
                   <td>{{ product.price }}&#x20AC;</td>
                   <td>
+                    <a href="{{ url_for('cart.remove_item', id=product.id) }}">
+                      <i class="fa fa-plus"></i>
+                    </a>
+                    <a href="{{ url_for('cart.remove_item', id=product.id) }}">
+                      <i class="fa fa-minus"></i>
+                    </a> 
                     <a href="{{ url_for('cart.remove_item', id=product.id) }}">
                       <i class="fa fa-trash"></i> Remove 
                     </a>

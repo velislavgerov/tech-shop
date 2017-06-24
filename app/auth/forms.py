@@ -26,3 +26,13 @@ class LoginForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
     submit = SubmitField('Login')
+
+#class ProfileForm(FlaskForm):
+
+#class AddressForm(FlaskForm):
+#    """Form fo user's addresses"""
+#    country = db.Column(db.String(50))
+#    county = db.Column(db.String(80))
+#    city = db.Column(db.String(80))
+#    postcode = db.Column(db.String(16))
+
