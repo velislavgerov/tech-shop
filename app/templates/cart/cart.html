@@ -44,7 +44,13 @@
                 </tr>
               {% endfor %}
                 <tr>
-                    <td></td>
+                    <td>
+                    <a href="{{ url_for('home.homepage') }}" class="btn btn-default btn-md">
+                <i class="fa fa-plus"></i>
+                Add Another Product
+            </a>
+
+                    </td>
                     <td></td>
                     <td>Subtotal:</td>
                     <td>{{ total }}&#x20AC;</td>
@@ -61,12 +67,12 @@
           <div style="text-align: center">
             <h3> Your shopping cart is empty. </h3>
             <hr class="intro-divider">
+            <a href="{{ url_for('home.homepage') }}" class="btn btn-default btn-lg">
+                <i class="fa fa-plus"></i>
+                Add Product
+            </a>
         {% endif %}
-          <a href="{{ url_for('home.homepage') }}" class="btn btn-default btn-lg">
-            <i class="fa fa-plus"></i>
-            Add Product
-          </a>
-          {% if products %}
+        {% if products %}
           <script src="https://www.paypalobjects.com/api/checkout.js"></script>
           <div id="paypal-button-container" style="width:100%;"></div>
             <script>
