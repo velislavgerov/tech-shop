@@ -12,7 +12,8 @@ def guest_cart():
     try:
         return session['cart']
     except KeyError:
-        return []
+        session['cart'] = {}
+        return session['cart']
     
 
 @cart.route('/cart', methods=['GET','POST'])
@@ -23,12 +24,15 @@ def list_items():
     # TODO: SHOULD CHECK PRODUCT AVAILABILITY AND FILTER UNAVAILABLE
     if current_user.is_authenticated:
         cart_items = Cart.query.filter_by(user_id=current_user.id).all()
+        quantities = {x.product_id: x.quantity for x in cart_items}
     else:
-        cart_items = guest_cart()
-    quantities = {x.product_id: x.quantity for x in cart_items}
+        quantities = session['cart']
     products = Product.query.filter(Product.id.in_(list(quantities.keys()))).all()
     for x in products:
-        q = quantities[x.id]
+        if current_user.is_authenticated:
+            q = quantities[x.id]
+        else:
+            q = quantities[str(x.id)]
         x.quantity = q
         x.price = q*x.price
     total = None
@@ -52,33 +56,32 @@ def add_to_cart(id):
             if current_user.is_authenticated:
                 db.session.merge(item)
                 db.session.commit()
+            else:
+                session['cart'][str(product.id)] += 1
             flash('Item updated.')
     
     def not_found():
-        u_id = None
         if current_user.is_authenticated:
-            u_id = current_user.id
-        item = Cart(user_id=u_id, product_id=id)
-        try:
-            if current_user.is_authenticated:
+            item = Cart(user_id=current_user.id, product_id=id)
+            try:
                 db.session.add(item)
                 db.session.commit()
-            else:
-                cart = guest_cart()
-                cart.append(item)
-            flash('Item added.')
-        except IntegrityError:
-            flash('Invalid item.')
-        except:
-            raise
-            flash('Sorry, you can\'t do that right now.')
+                flash('Item added.')
+            except IntegrityError:
+                flash('Invalid item.')
+            except:
+                raise
+                flash('Sorry, you can\'t do that right now.')
+        else:
+            cart = session['cart']
+            cart[str(id)] = 1
+            session['cart'] = cart
 
     handle_item(id, do_work, not_found) 
  
     return redirect(url_for('cart.list_items'))
 
 @cart.route('/cart/remove/<int:id>', methods=['GET','POST'])
-@login_required
 def remove_item(id):
     """
     Removes an item from the cart
@@ -89,8 +92,7 @@ def remove_item(id):
                 db.session.delete(item)
                 db.session.commit()
             else:
-                cart = guest_cart()
-                cart.remove(item)
+                del session['cart'][str(id)]
 
             flash('Item removed.')
         except:
@@ -101,7 +103,6 @@ def remove_item(id):
     return redirect(url_for('cart.list_items'))
 
 @cart.route('/cart/remove/one/<int:id>', methods=['GET','POST'])
-@login_required
 def remove_one_item(id):
     """
     Decrements item count from the cart
@@ -112,21 +113,21 @@ def remove_one_item(id):
             if current_user.is_authenticated:
                 db.session.merge(item)
                 db.session.commit()
+            else:
+                session['cart'][str(id)] -= 1
             flash('Item updated.')
         elif item.quantity == 1:
             if current_user.is_authenticated:
                 db.session.delete(item)
                 db.session.commit()
             else:
-                cart = guest_cart()
-                cart.remove(item)
+                del session['cart'][str(id)]
     
     handle_item(id, do_work)
 
     return redirect(url_for('cart.list_items'))
 
 @cart.route('/cart/empty', methods=['GET','POST'])
-@login_required
 def empty_cart():
     """
     Removes all items from user's cart
@@ -135,7 +136,7 @@ def empty_cart():
         if current_user.is_authenticated:
             Cart.query.filter_by(user_id=current_user.id).delete()
         else:
-            session['cart'] = []
+            session['cart'] = {}
         db.session.commit()
         flash('You have emptied your cart.')
     except:
@@ -154,10 +155,9 @@ def handle_item(id, do_work, not_found=None):
     if current_user.is_authenticated:
         item = Cart.query.filter(Cart.user_id == current_user.id).filter(Cart.product_id == id).first()
     else:
-        for x in guest_cart():
-            if x.product_id == id:
-                item = x
-                break
+        if str(id) in session['cart']:
+            item = Cart(user_id=None, product_id=id, quantity=session['cart'][str(id)])
+
     if item:
         # do the work
         do_work(item)
@@ -165,7 +165,6 @@ def handle_item(id, do_work, not_found=None):
         if not not_found:
             flash('Item not found in your cart.')
         else:
-            not_found()
-        
+            not_found() 
 
 
