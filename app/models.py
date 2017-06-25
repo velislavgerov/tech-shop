@@ -148,7 +148,7 @@ class UserOrders(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    order_id = db.Column(db.Integer, db.ForeignKey('oreders_detail.id'))
+    order_id = db.Column(db.Integer, db.ForeignKey('orders_detail.id'))
 
 class OrderDetail(db.Model):
     """Create an OrderDetail table."""

@@ -127,6 +127,7 @@ def execute():
     
     if payment.execute({"payer_id" : payerID}):  # return True or False
         print("Payment[%s] execute successfully" % (payment.id))
+        print(payment)
         #address = payment.transactions[0].item_list.shipping_address
         #phone = payment.transactions[0].item_list.shipping_phone_number
         
