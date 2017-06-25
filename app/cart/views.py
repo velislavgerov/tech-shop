@@ -7,15 +7,6 @@ from . import cart
 from .. import db
 from ..models import Cart, Product
 
-
-def guest_cart():
-    try:
-        return session['cart']
-    except KeyError:
-        session['cart'] = {}
-        return session['cart']
-    
-
 @cart.route('/cart', methods=['GET','POST'])
 def list_items():
     """
