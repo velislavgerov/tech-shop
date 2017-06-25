@@ -1,4 +1,4 @@
-from flask import flash, redirect, render_template, url_for, request
+from flask import flash, redirect, render_template, url_for, request, session
 from flask_login import current_user, login_required
 from sqlalchemy.exc import IntegrityError
 
@@ -8,14 +8,23 @@ from .. import db
 from ..models import Cart, Product
 
 
+def guest_cart():
+    try:
+        return session['cart']
+    except KeyError:
+        return []
+    
+
 @cart.route('/cart', methods=['GET','POST'])
-@login_required
 def list_items():
     """
     List all items in cart
     """
     # TODO: SHOULD CHECK PRODUCT AVAILABILITY AND FILTER UNAVAILABLE
-    cart_items = Cart.query.filter_by(user_id=current_user.id).all()
+    if current_user.is_authenticated:
+        cart_items = Cart.query.filter_by(user_id=current_user.id).all()
+    else:
+        cart_items = guest_cart()
     quantities = {x.product_id: x.quantity for x in cart_items}
     products = Product.query.filter(Product.id.in_(list(quantities.keys()))).all()
     for x in products:
@@ -28,7 +37,6 @@ def list_items():
     return render_template('cart/cart.html', products=products, total=total, title="Cart")
 
 @cart.route('/cart/add/<int:id>', methods=['GET','POST'])
-@login_required
 def add_to_cart(id):
     """
     Add a product to cart
@@ -41,19 +49,28 @@ def add_to_cart(id):
             flash('You can not add more from this product.')
         else:
             item.quantity += 1
-            db.session.merge(item)
-            db.session.commit()
+            if current_user.is_authenticated:
+                db.session.merge(item)
+                db.session.commit()
             flash('Item updated.')
     
     def not_found():
-        item = Cart(user_id=current_user.id, product_id=id)
+        u_id = None
+        if current_user.is_authenticated:
+            u_id = current_user.id
+        item = Cart(user_id=u_id, product_id=id)
         try:
-            db.session.add(item)
-            db.session.commit()
+            if current_user.is_authenticated:
+                db.session.add(item)
+                db.session.commit()
+            else:
+                cart = guest_cart()
+                cart.append(item)
             flash('Item added.')
         except IntegrityError:
             flash('Invalid item.')
         except:
+            raise
             flash('Sorry, you can\'t do that right now.')
 
     handle_item(id, do_work, not_found) 
@@ -68,8 +85,13 @@ def remove_item(id):
     """
     def do_work(item):
         try:
-            db.session.delete(item)
-            db.session.commit()
+            if current_user.is_authenticated:
+                db.session.delete(item)
+                db.session.commit()
+            else:
+                cart = guest_cart()
+                cart.remove(item)
+
             flash('Item removed.')
         except:
             flash('Sorry, you can\'t do that at the moment.')
@@ -87,12 +109,17 @@ def remove_one_item(id):
     def do_work(item):
         if item.quantity > 1:
             item.quantity -= 1
-            db.session.merge(item)
-            db.session.commit()
+            if current_user.is_authenticated:
+                db.session.merge(item)
+                db.session.commit()
             flash('Item updated.')
         elif item.quantity == 1:
-            db.session.delete(item)
-            db.session.commit()
+            if current_user.is_authenticated:
+                db.session.delete(item)
+                db.session.commit()
+            else:
+                cart = guest_cart()
+                cart.remove(item)
     
     handle_item(id, do_work)
 
@@ -105,7 +132,10 @@ def empty_cart():
     Removes all items from user's cart
     """
     try:
-        Cart.query.filter_by(user_id=current_user.id).delete()
+        if current_user.is_authenticated:
+            Cart.query.filter_by(user_id=current_user.id).delete()
+        else:
+            session['cart'] = []
         db.session.commit()
         flash('You have emptied your cart.')
     except:
@@ -119,8 +149,15 @@ def handle_item(id, do_work, not_found=None):
     Helper function to handle our work with the cart items.
     """
     # XXX: There is just one intended way for this to work, but should I handle
-    # errors?  
-    item = Cart.query.filter(Cart.user_id == current_user.id).filter(Cart.product_id == id).first()
+    # errors?
+    item = None
+    if current_user.is_authenticated:
+        item = Cart.query.filter(Cart.user_id == current_user.id).filter(Cart.product_id == id).first()
+    else:
+        for x in guest_cart():
+            if x.product_id == id:
+                item = x
+                break
     if item:
         # do the work
         do_work(item)
