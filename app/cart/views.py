@@ -7,12 +7,14 @@ from . import cart
 from .. import db
 from ..models import Cart, Product
 
+
 @cart.route('/cart', methods=['GET','POST'])
 @login_required
 def list_items():
     """
     List all items in cart
     """
+    # TODO: SHOULD CHECK PRODUCT AVAILABILITY AND FILTER UNAVAILABLE
     cart_items = Cart.query.filter_by(user_id=current_user.id).all()
     quantities = {x.product_id: x.quantity for x in cart_items}
     products = Product.query.filter(Product.id.in_(list(quantities.keys()))).all()

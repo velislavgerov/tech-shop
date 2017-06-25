@@ -127,7 +127,6 @@ def execute():
     
     if payment.execute({"payer_id" : payerID}):  # return True or False
         print("Payment[%s] execute successfully" % (payment.id))
-        print(payment)
         #address = payment.transactions[0].item_list.shipping_address
         #phone = payment.transactions[0].item_list.shipping_phone_number
         
@@ -151,7 +150,7 @@ def execute():
             # decrese product count
             product = Product.query.filter_by(id=item.product_id).first()
             if not product:
-                return('', 500)
+                return('', 500) #TODO: Change all of these
             product.quantity -= item.quantity
             if product.quantity < 0:
                 return('', 500)
