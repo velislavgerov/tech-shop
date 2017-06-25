@@ -67,10 +67,65 @@
             Add Product
           </a>
           {% if products %}
-          <a href="{{ url_for('home.confirm_order') }}" class="btn btn-default btn-lg">
-            <i class="fa fa-truck"></i>
-            Order
-          </a>
+          <script src="https://www.paypalobjects.com/api/checkout.js"></script>
+          <div id="paypal-button-container" style="width:100%;"></div>
+            <script>
+    // Render the PayPal button
+    paypal.Button.render({
+        // Set your environment
+        env: 'sandbox', // sandbox | production
+        // Specify the style of the button
+        style: {
+            label: 'checkout', // checkout | credit | pay
+            size:  'responsive',    // small | medium | responsive
+            shape: 'rect',     // pill | rect
+            color: 'blue'      // gold | blue | silver
+        },
+        // Show the buyer a 'Pay Now' button in the checkout flow
+            commit: true,
+
+            // payment() is called when the button is clicked
+            payment: function() {
+
+                // Set up a url on your server to create the payment
+                var CREATE_URL = "{{ url_for('payment.create')}}";
+
+                // Make a call to your server to set up the payment
+                return paypal.request.post(CREATE_URL)
+                    .then(function(res) {
+                        if (res.redirect_url){
+                            window.location.replace(res.redirect_url);
+                        }
+                        else {
+                             return res.paymentID;
+                        }
+                    });
+            },
+
+            // onAuthorize() is called when the buyer approves the payment
+            onAuthorize: function(data, actions) {
+                console.log(data);
+
+                // Set up a url on your server to execute the payment
+                var EXECUTE_URL = "{{url_for('payment.execute')}}";
+
+                // Set up the data you need to pass to your server
+                var data = {
+                    paymentID: data.paymentID,
+                    payerID: data.payerID
+                };
+                console.log(data);
+                // Make a call to your server to execute the payment
+                return paypal.request.post(EXECUTE_URL, {
+                    paymentID: data.paymentID,
+                    payerID: data.payerID
+                }).then(function (res) {
+                     window.location.replace(res.redirect_url);
+                });
+            }
+    }, '#paypal-button-container');
+</script>
+
           {% endif %}
         </div>
       </div>

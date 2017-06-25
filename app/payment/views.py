@@ -30,14 +30,16 @@ def create():
                 }
             # create order 
         else:
-            # TODO:error
-            pass
+            response = jsonify(redirect_url=url_for('auth.account'))
+            response.status_code = 302
+            flash('You should update your account\'s address before you try to order')
+            return response
         cart_items = Cart.query.filter_by(user_id=current_user.id).all()
         quantities = {x.product_id: x.quantity for x in cart_items}
         products = Product.query.filter(Product.id.in_(list(quantities.keys()))).all()
         total = None
         if products:
-            total = sum([x.price for x in products])
+            total = sum([x.price*quantities[x.id] for x in products])
         ammount = {
                 "total": str(total),
                 "currency": "EUR"
@@ -59,8 +61,8 @@ def create():
         "intent": "sale",
         "redirect_urls":
         {
-            "return_url": "http://google.com",
-            "cancel_url": "http://google.com"
+            "return_url": "http://sandbox.paypal.com/execute",
+            "cancel_url": "http://sandbox.paypal.com/cancel"
         },
         # Payer
         # A resource representing a Payer that funds a payment
@@ -81,7 +83,7 @@ def create():
             "amount": ammount,
             "description": "This is the payment transaction description."}
         ]})
-
+    print(payment)
     # Create Payment and return status( True or False )
     if payment.create():
         print("Payment[%s] created successfully" % (payment.id))
@@ -122,35 +124,60 @@ def execute():
     paymentID = request.form['paymentID']
     payerID = request.form['payerID']
     payment = Payment.find(paymentID)
-    print(paymentID, payerID)
     
     if payment.execute({"payer_id" : payerID}):  # return True or False
         print("Payment[%s] execute successfully" % (payment.id))
-        print(payment)
-        address = payment.transactions[0].item_list.shipping_address
-        phone = payment.transactions[0].item_list.shipping_phone_number
+        #address = payment.transactions[0].item_list.shipping_address
+        #phone = payment.transactions[0].item_list.shipping_phone_number
+        
+        # find corresponding order and change it's status
         order = OrderDetail.query.filter_by(payment_id=paymentID).first()
         order.status = OrderStatus.PAID
-        if not order: pass
+        if not order: 
+            return('', 500)
+        
+        # get all cart items
         cart_items = Cart.query.filter_by(user_id=current_user.id).all()
         order_items = []
+        product_updates = []
         for item in cart_items:
+            # move cart items to order items
             order_items.append(OrderItem(
                     order_id=order.id,
                     user_id=current_user.id,
                     product_id=item.product_id,
                     quantity=item.quantity))
+            # decrese product count
+            product = Product.query.filter_by(id=item.product_id).first()
+            if not product:
+                return('', 500)
+            product.quantity -= item.quantity
+            if product.quantity < 0:
+                return('', 500)
+            product_updates.append(product)
+
         try:
             db.session.merge(order)
             for item in order_items:
                 db.session.add(item)
             for item in cart_items:
                 db.session.delete(item)
+            for item in product_updates:
+                db.session.merge(item)
             db.session.commit()
         except:
-            raise
-        print(order.created_at)
-        return jsonify()
+            return('', 500)
+        response = jsonify(redirect_url=url_for('auth.orders'))
+        response.status_code = 302
+        flash('You have completed your order.')
+        return response
+
     else:
         print(payment.error)
-    return jsonify()
+    return ('', 500)
+
+@payment.route('/payment/cancel', methods=['GET', 'POST'])
+def cancel():
+    token = request.args.get('token')
+    return ('', 204)
+

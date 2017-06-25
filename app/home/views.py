@@ -99,17 +99,6 @@ def finalize_order():
         x.price = q*x.price
     total = None
     if products:
-        total = sum([x.price for x in products])
-
-     
-    address = Address.query.filter_by(user_id=current_user.id).first()    
-    #if address:
-    #    form.tel_number.data = address.tel_number
-    #    form.address_line_1.data = address.address_line_1
-    #    form.address_line_2.data = address.address_line_2
-    #    form.city.data = address.city
-    #    form.county.data = address.county
-    #    form.postcode.data = address.postcode
-    #    form.country.data = address.country
+        total = sum([x.price for x in products])   
 
     return render_template('home/pay_order.html', products=products, total=total, title="Finalize Order")

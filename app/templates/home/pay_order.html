@@ -75,6 +75,10 @@
                 // Make a call to your server to set up the payment
                 return paypal.request.post(CREATE_URL)
                     .then(function(res) {
+                        if (res.redirect_url){
+                                window.location.replace(res.redirect_url);
+                                return undefined
+                            }
                         return res.paymentID;
                     });
             },
