@@ -141,6 +141,15 @@ class OrderStatus(Enum):
     SENT = "Delivering"
     DLVD = "Delivered"
 
+class UserOrders(db.Model):
+    """Create an UserOrders table."""
+    
+    __tablename__ = 'users_orders'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    order_id = db.Column(db.Integer, db.ForeignKey('oreders_detail.id'))
+
 class OrderDetail(db.Model):
     """Create an OrderDetail table."""
    
@@ -161,7 +170,7 @@ class OrderDetail(db.Model):
     message = db.Column(db.Text)
     created_at = db.Column(db.Date(), nullable=False)
     status = db.Column(db.Enum(OrderStatus), default=OrderStatus.RECV)
-    payment_id = db.Column(db.Text, nullable=False)
+    payment_id = db.Column(db.Text, index=True, unique=True, nullable=False)
 
 class OrderItem(db.Model):
     """Create an OrderItem table."""
