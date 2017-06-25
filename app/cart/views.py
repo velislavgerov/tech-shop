@@ -33,6 +33,8 @@ def add_to_cart(id):
     """
     def do_work(item):
         product = Product.query.filter_by(id=item.product_id).first()
+        if product.quantity <= 0:
+            flash('This item is currently unavailable.')
         if item.quantity + 1 > product.quantity:
             flash('You can not add more from this product.')
         else:

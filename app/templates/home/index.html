@@ -36,8 +36,15 @@
                                 </h4>
                                 <h4 class="">&#x20AC;{{ product.price }}</h4>
                                 <p class="card-text">{{ product.description[:80] }}...</p>
+                                {% if product.quantity > 0 %}
                                 <a href="cart/add/{{product.id}}" class="btn btn-outline-primary btn-sm">
-                                    <span class="fa fa-shopping-cart"></span> Add to cart</a>
+                                    <span class="fa fa-shopping-cart"></span> Add to cart
+                                </a>
+                                {% else %}
+                                <a href="#" disabled="true" class="btn btn-outline-warning btn-sm">
+                                    <span class="fa fa-shopping-cart"></span> Unavailable
+                                </a>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
