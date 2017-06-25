@@ -1,0 +1,60 @@
+{% import "bootstrap/utils.html" as utils %}
+{% extends "base.html" %}
+{% block title %}Orders{% endblock %}
+{% block body %}
+<div class="content-section">
+  <div class="outer">
+    <div class="middle">
+      <div class="inner">
+        <br/>
+        {{ utils.flashed_messages() }}
+        <br/>
+        <h1 style="text-align:center;">Orders</h1>
+        {% if orders %}
+          <hr class="intro-divider">
+          <div class="center">
+            <table class="table table-responsive">
+              <thead>
+                <tr>
+                  <th> Order ID </th>
+                  <th> Last name </th>
+                  <th> Email </th>
+                  <th> Phone </th>
+                  <th> Country </th>
+                  <th> Created at </th>
+                  <th> Status </th>
+                  <th> Details </th>
+                </tr>
+              </thead>
+              <tbody>
+              {% for order in orders %}
+              <tr>
+                  <td> {{ order.id }} </td>
+                  <td> {{ order.last_name }} </td>
+                  <td> {{ order.email }} </td>
+                  <td> {{ order.tel_number }} </td>
+                  <td> {{ order.country }} </td>
+                  <td> {{ order.created_at }} </td>
+                  <td> {{ order.status.value }}</td>
+                  <td>
+                    <a href="{{ url_for('admin.edit_category', id=order.id) }}">
+                      <i class="fa fa-info"></i> Details
+                    </a>
+                  </td>
+              </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <div style="text-align: center">
+        {% else %}
+          <div style="text-align: center">
+            <h3> There are currently no orders. </h3>
+            <hr class="intro-divider">
+        {% endif %}  
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -168,7 +168,7 @@ class OrderDetail(db.Model):
     postcode = db.Column(db.String(16), nullable=False)
     country = db.Column(db.String(50), nullable=False)
     message = db.Column(db.Text)
-    created_at = db.Column(db.Date(), nullable=False)
+    created_at = db.Column(db.DateTime(), nullable=False)
     status = db.Column(db.Enum(OrderStatus), default=OrderStatus.RECV)
     payment_id = db.Column(db.Text, index=True, unique=True, nullable=False)
 

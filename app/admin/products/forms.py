@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed, FileRequired
 from wtforms import StringField, TextField, IntegerField, SubmitField
 from wtforms.fields.html5 import DecimalField
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, InputRequired
 from wtforms.widgets import TextArea, Input, FileInput
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 
@@ -25,7 +25,7 @@ class ProductForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired()])
     description = TextField('Description', validators=[DataRequired()], widget=TextArea())
     price = DecimalField('Price', places=2, validators=[DataRequired('Please enter a valid price.')])
-    quantity = IntegerField('Quantity',validators=[DataRequired()], widget=Input('number'))
+    quantity = IntegerField('Quantity',validators=[InputRequired()], widget=Input('number'))
     image = FileField('Image File', 
                     validators=[FileAllowed(ALLOWED_EXTENSIONS,'Images only!')])
     category = QuerySelectField('Category',validators=[DataRequired()], query_factory=enabled_categories, get_label='name', allow_blank=True) 
