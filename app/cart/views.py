@@ -7,15 +7,6 @@ from . import cart
 from .. import db
 from ..models import Cart, Product
 
-
-def guest_cart():
-    try:
-        return session['cart']
-    except KeyError:
-        session['cart'] = {}
-        return session['cart']
-    
-
 @cart.route('/cart', methods=['GET','POST'])
 def list_items():
     """
@@ -155,8 +146,9 @@ def handle_item(id, do_work, not_found=None):
     if current_user.is_authenticated:
         item = Cart.query.filter(Cart.user_id == current_user.id).filter(Cart.product_id == id).first()
     else:
-        if str(id) in session['cart']:
-            item = Cart(user_id=None, product_id=id, quantity=session['cart'][str(id)])
+        if session['cart']:
+            if str(id) in session['cart']:
+                item = Cart(user_id=None, product_id=id, quantity=session['cart'][str(id)])
 
     if item:
         # do the work
