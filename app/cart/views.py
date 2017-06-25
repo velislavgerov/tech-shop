@@ -7,6 +7,13 @@ from . import cart
 from .. import db
 from ..models import Cart, Product
 
+def guest_cart():
+    try:
+        return session['cart']
+    except KeyError:
+        session['cart'] = {}
+        return session['cart']
+
 @cart.route('/cart', methods=['GET','POST'])
 def list_items():
     """
@@ -17,7 +24,7 @@ def list_items():
         cart_items = Cart.query.filter_by(user_id=current_user.id).all()
         quantities = {x.product_id: x.quantity for x in cart_items}
     else:
-        quantities = session['cart']
+        quantities = guest_cart()
     products = Product.query.filter(Product.id.in_(list(quantities.keys()))).all()
     for x in products:
         if current_user.is_authenticated:
