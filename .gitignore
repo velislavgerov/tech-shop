@@ -1,4 +1,5 @@
 __pycache__/
+go.sh
 .env
 *.swp
 heroku-util/

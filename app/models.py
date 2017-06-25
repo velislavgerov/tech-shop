@@ -161,6 +161,7 @@ class OrderDetail(db.Model):
     message = db.Column(db.Text)
     created_at = db.Column(db.Date(), nullable=False)
     status = db.Column(db.Enum(OrderStatus), default=OrderStatus.RECV)
+    payment_id = db.Column(db.Text, nullable=False)
 
 class OrderItem(db.Model):
     """Create an OrderItem table."""
