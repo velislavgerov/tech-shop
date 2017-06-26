@@ -124,7 +124,7 @@
                 // Make a call to your server to execute the payment
                 return paypal.request.post(EXECUTE_URL, {
                     paymentID: data.paymentID,
-                    payerID: data.payerID
+                    payerID: data.payerID,
                 }).then(function (res) {
                      window.location.replace(res.redirect_url);
                 });

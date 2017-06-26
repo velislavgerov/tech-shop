@@ -48,7 +48,7 @@ class Address(db.Model):
     __tablename__ = 'addresses'
     
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True) # remove pk for multiple addresses
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id')) # remove pk for multiple addresses
     tel_number = db.Column(db.Text, nullable=False)
     address_line_1 = db.Column(db.Text, nullable=False)
     address_line_2 =  db.Column(db.Text)
@@ -148,39 +148,37 @@ class UserOrders(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    order_id = db.Column(db.Integer, db.ForeignKey('orders_detail.id'))
+    order_id = db.Column(db.Text, db.ForeignKey('orders_detail.payment_id'))
 
 class OrderDetail(db.Model):
     """Create an OrderDetail table."""
    
     __tablename__ = 'orders_detail'
     
-    id = db.Column(db.Integer, primary_key=True)
+    payment_id = db.Column(db.Text, primary_key=True)
+    payment_token = db.Column(db.Text, index=True)
+    status = db.Column(db.Enum(OrderStatus), default=OrderStatus.RECV)
+    created_at = db.Column(db.DateTime(), nullable=False)
     email = db.Column(db.String(60), index=True)
     first_name = db.Column(db.String(60), index=True)
     last_name = db.Column(db.String(60), index=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    tel_number = db.Column(db.Text, nullable=False)
-    address_line_1 = db.Column(db.Text, nullable=False)
+    tel_number = db.Column(db.Text)
+    address_line_1 = db.Column(db.Text)
     address_line_2 =  db.Column(db.Text)
-    city = db.Column(db.String(80), nullable=False)
-    county = db.Column(db.String(80), nullable=False)
-    postcode = db.Column(db.String(16), nullable=False)
-    country = db.Column(db.String(50), nullable=False)
+    city = db.Column(db.String(80))
+    county = db.Column(db.String(80))
+    postcode = db.Column(db.String(16))
+    country = db.Column(db.String(50))
     message = db.Column(db.Text)
-    created_at = db.Column(db.DateTime(), nullable=False)
-    status = db.Column(db.Enum(OrderStatus), default=OrderStatus.RECV)
-    payment_id = db.Column(db.Text, index=True, unique=True, nullable=False)
 
 class OrderItem(db.Model):
     """Create an OrderItem table."""
 
     __tablename__ = 'orders_items'
-    __table_args__ = ( db.UniqueConstraint('user_id', 'product_id', 'order_id'), { } )
+    __table_args__ = ( db.UniqueConstraint('product_id', 'order_id'), { } )
 
     id = db.Column(db.Integer, primary_key=True)
-    order_id = db.Column(db.Integer, db.ForeignKey('orders_detail.id'), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    order_id = db.Column(db.Text, db.ForeignKey('orders_detail.payment_id'), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
     quantity = db.Column(db.Integer, default=1, nullable=False)
 

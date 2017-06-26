@@ -1,10 +1,10 @@
-from flask import request, jsonify, abort, flash, render_template, request, url_for, redirect
+from flask import request, jsonify, abort, flash, render_template, request, url_for, redirect, session
 from flask_login import current_user, login_required
 from paypalrestsdk import Payment
 
 from . import payment
 
-from ..models import Product, Category, Cart, Address, OrderDetail, OrderItem, OrderStatus
+from ..models import Product, Category, Cart, Address, OrderDetail, OrderItem, OrderStatus, UserOrders
 from .. import db
 
 from datetime import datetime
@@ -54,9 +54,52 @@ def create():
                         "sku": str(item.id),
                         "currency": "EUR"
                         })
-    # Payment
-    # A Payment Resource; create one using
-    # the above types and intent as 'sale'
+
+        # transaction object as part of the paypal api
+        transactions = [
+            {
+                "item_list": {
+                    "items": items,
+                    "shipping_address": shipping_address 
+                },
+                "amount": ammount,
+                "description": "This is a registered user transaction."
+            }
+        ]
+    else:
+        # Geneerate PayPal transactions data from the guest cart
+        # Specifically, we currently use items and ammount
+        cart_items = session['cart']
+        products = Product.query.filter(Product.id.in_(list(cart_items.keys()))).all()
+        total = None
+        if products:
+            total = sum([x.price*cart_items[str(x.id)] for x in products])
+        ammount = {
+                "total": str(total),
+                "currency": "EUR"
+                }
+        items = []
+        for item in products:
+            items.append({
+                        "name": item.name,
+                        "description": item.description,
+                        "quantity": str(cart_items[str(item.id)]),
+                        "price": str(item.price),
+                        "sku": str(item.id),
+                        "currency": "EUR"
+                        })
+        transactions = [
+            {
+                # ItemList
+                "item_list": {
+                    "items": items, 
+                },
+                "amount": ammount,
+                "description": "This is a guest transaction."
+            }
+        ]
+
+        
     payment = Payment({
         "intent": "sale",
         "redirect_urls":
@@ -71,34 +114,14 @@ def create():
         "payer": {
             "payment_method": "paypal",
         },
-        "transactions": [
-        {
-            # ItemList
-            "item_list": {
-                "items": items,
-                "shipping_address": shipping_address 
-            },
-            # Amount
-            # Let's you specify a payment amount.
-            "amount": ammount,
-            "description": "This is the payment transaction description."}
-        ]})
+        "transactions": transactions
+        })
+
     print(payment)
     # Create Payment and return status( True or False )
     if payment.create():
         print("Payment[%s] created successfully" % (payment.id))
         order = OrderDetail(
-                email=current_user.email,
-                first_name=current_user.first_name,
-                last_name=current_user.last_name,
-                user_id=current_user.id,
-                tel_number=address.tel_number,
-                address_line_1=address.address_line_1,
-                address_line_2=address.address_line_2,
-                city=address.city,
-                postcode=address.postcode,
-                county=address.county,
-                country=address.country,
                 created_at=datetime.utcnow(),
                 payment_id=payment.id
                 )
@@ -106,6 +129,7 @@ def create():
             db.session.add(order)
             db.session.commit()
         except:
+            raise
             return jsonify()
 
         return jsonify(paymentID=payment.id)
@@ -124,46 +148,71 @@ def execute():
     paymentID = request.form['paymentID']
     payerID = request.form['payerID']
     payment = Payment.find(paymentID)
-    
+
     if payment.execute({"payer_id" : payerID}):  # return True or False
         print("Payment[%s] execute successfully" % (payment.id))
-        #address = payment.transactions[0].item_list.shipping_address
-        #phone = payment.transactions[0].item_list.shipping_phone_number
-        
+        user_id = 0
+        if current_user.is_authenticated:
+            user_id = current_user.id
+        address = payment.transactions[0].item_list.shipping_address
+        phone = payment.transactions[0].item_list.shipping_phone_number
+        items = payment.transactions[0].item_list.items
+        print(address)
+        print(phone)
+        print(items)
+
         # find corresponding order and change it's status
         order = OrderDetail.query.filter_by(payment_id=paymentID).first()
         order.status = OrderStatus.PAID
+        order.first_name = address['recipient_name'].split(' ',1)[0]
+        order.last_name = address['recipient_name'].rsplit(' ',1)[1]
+        order.address_line_1 = address['line1']
+        try:
+            order.address_line_2 = address['line2']
+        except KeyError:
+            pass #line 2 missing
+        order.city = address['city']
+        order.county = address['state']
+        order.postcode = address['postal_code']
+        order.country = address['country_code']
+        order.phone = phone
+
+
         if not order: 
             return('', 500)
         
-        # get all cart items
-        cart_items = Cart.query.filter_by(user_id=current_user.id).all()
         order_items = []
         product_updates = []
-        for item in cart_items:
+        for item in items:
             # move cart items to order items
             order_items.append(OrderItem(
-                    order_id=order.id,
-                    user_id=current_user.id,
-                    product_id=item.product_id,
+                    order_id=order.payment_id,
+                    product_id=item.sku,
                     quantity=item.quantity))
             # decrese product count
-            product = Product.query.filter_by(id=item.product_id).first()
+            product = Product.query.filter_by(id=item.sku).first()
             if not product:
                 return('', 500) #TODO: Change all of these
             product.quantity -= item.quantity
             if product.quantity < 0:
                 return('', 500)
             product_updates.append(product)
+        
+        user_order = UserOrders(user_id=user_id, order_id=order.payment_id)
 
         try:
             db.session.merge(order)
             for item in order_items:
                 db.session.add(item)
-            for item in cart_items:
-                db.session.delete(item)
+            if current_user.is_authenticated:
+                cart_items = Cart.query.filter_by(user_id=current_user.id).all()
+                for item in cart_items:
+                    db.session.delete(item)
+            else:
+                session['cart'] = {}
             for item in product_updates:
                 db.session.merge(item)
+            db.session.add(user_order)
             db.session.commit()
         except:
             return('', 500)

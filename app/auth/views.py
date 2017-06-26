@@ -54,6 +54,7 @@ def account():
             db.session.commit()
             flash('You have succesfully updated your details.')
         except:
+            raise
             flash('Sorry, you can\'t do this right now.')
     
     form.email.data = current_user.email
