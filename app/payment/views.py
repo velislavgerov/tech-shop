@@ -1,6 +1,6 @@
 from flask import request, jsonify, abort, flash, render_template, request, url_for, redirect, session
 from flask_login import current_user, login_required
-from paypalrestsdk import Payment
+from paypalrestsdk import Payment, ResourceNotFound
 
 from . import payment
 
@@ -117,9 +117,9 @@ def create():
         "transactions": transactions
         })
 
-    print(payment)
     # Create Payment and return status( True or False )
     if payment.create():
+        print(payment.__dict__)
         print("Payment[%s] created successfully" % (payment.id))
         order = OrderDetail(
                 created_at=datetime.utcnow(),
@@ -229,4 +229,25 @@ def execute():
 def cancel():
     token = request.args.get('token')
     return ('', 204)
+
+
+@payment.route('/payment/detail', methods=['POST'])
+def detail():
+    """
+    Get paypal payment detail
+    """
+    payment_id = request.form['paymentID']
+    print(request)
+    try:
+        # Retrieve the payment object by calling the
+        # `find` method
+        # on the Payment class by passing Payment ID
+        payment = Payment.find(payment_id)
+        print("Got Payment Details for Payment[%s]" % (payment.id))
+        print(payment)
+        return jsonify(str(payment))
+
+    except ResourceNotFound as error:
+        # It will through ResourceNotFound exception if the payment not found
+        print("Payment Not Found")
 
