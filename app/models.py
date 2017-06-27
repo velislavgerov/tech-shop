@@ -53,10 +53,20 @@ class Address(db.Model):
     address_line_1 = db.Column(db.Text, nullable=False)
     address_line_2 =  db.Column(db.Text)
     city = db.Column(db.String(80), nullable=False)
-    county = db.Column(db.String(80), nullable=False)
+    country_code = db.Column(db.String(2))
     postcode = db.Column(db.String(16), nullable=False)
-    country = db.Column(db.String(50), nullable=False)
-            
+    county = db.Column(db.String(80))
+
+class Country(db.Model):
+    """Create a Country table."""
+
+    __tablename__ = 'countries'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(80), nullable=False)
+    code = db.Column(db.String(2), unique=True)
+    allowed = db.Column(db.Boolean, default=False)
+    postcode_required = db.Column(db.Boolean, default=False)
 
 class Product(db.Model):
     """Create a Product table."""

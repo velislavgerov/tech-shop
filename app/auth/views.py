@@ -5,7 +5,7 @@ from . import auth
 from .forms import LoginForm, RegistrationForm, AccountForm
 
 from .. import db
-from ..models import User, Address, OrderDetail
+from ..models import User, Address, OrderDetail, Country
 
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
@@ -48,7 +48,7 @@ def account():
         address.city = form.city.data
         address.county = form.county.data
         address.postcode = form.postcode.data
-        address.country = form.country.data
+        address.country_code = form.country.data.code
         try:
             db.session.merge(address)
             db.session.commit()
@@ -67,8 +67,7 @@ def account():
         form.city.data = address.city
         form.county.data = address.county
         form.postcode.data = address.postcode
-        form.country.data = address.country
-
+        form.country.data  = Country.query.filter_by(code=address.country_code).first()
     return render_template('auth/account.html', form=form, title='Account')
 
 @auth.route('/orders')

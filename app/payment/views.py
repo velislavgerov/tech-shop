@@ -1,6 +1,6 @@
 from flask import request, jsonify, abort, flash, render_template, request, url_for, redirect, session
 from flask_login import current_user, login_required
-from paypalrestsdk import Payment, ResourceNotFound
+from paypalrestsdk import Payment, WebProfile, ResourceNotFound
 
 from . import payment
 
@@ -8,6 +8,35 @@ from ..models import Product, Category, Cart, Address, OrderDetail, OrderItem, O
 from .. import db
 
 from datetime import datetime
+import random, string
+
+def web_profile_id():
+    # Name needs to be unique so just generating a random one
+    wpn = ''.join(random.choice(string.ascii_uppercase) for i in range(12))
+
+    web_profile = WebProfile({
+        "name": wpn,
+        "presentation": {
+            "brand_name": "Tech Shop",
+            "logo_image": "http://s3-ec.buzzfed.com/static/2014-07/18/8/enhanced/webdr02/anigif_enhanced-buzz-21087-1405685585-12.gif",
+            "locale_code": "US"
+        },
+        "input_fields": {
+            "allow_note": True,
+            "no_shipping": 0,
+            "address_override": 1
+        },
+        "flow_config": {
+            "landing_page_type": "billing",
+            "bank_txn_pending_url": "http://www.yeowza.com"
+        }
+    })
+
+    if web_profile.create():
+        print("Web Profile[%s] created successfully" % (web_profile.id))
+        return web_profile.id
+    else:
+        print(web_profile.error)
 
 @payment.route('/payment/create', methods=['POST'])
 def create():
@@ -98,10 +127,10 @@ def create():
                 "description": "This is a guest transaction."
             }
         ]
-
-        
+    
     payment = Payment({
         "intent": "sale",
+        "experience_profile_id": web_profile_id(),
         "redirect_urls":
         {
             "return_url": "http://sandbox.paypal.com/execute",
@@ -116,7 +145,8 @@ def create():
         },
         "transactions": transactions
         })
-
+    
+    print(payment)
     # Create Payment and return status( True or False )
     if payment.create():
         print(payment.__dict__)
