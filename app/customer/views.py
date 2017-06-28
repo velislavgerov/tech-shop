@@ -30,10 +30,10 @@ def register():
         flash('You have successfully registered! You may now login.')
 
         # redirect to the login page
-        return redirect(url_for('auth.login'))
+        return redirect(url_for('customer.login'))
 
     # load registration template
-    return render_template('auth/register.html', form=form, title='Register')
+    return render_template('customer/register.html', form=form, title='Register')
 
 @customer.route('/account', methods=['GET','POST'])
 @login_required
@@ -60,7 +60,7 @@ def account():
     form.first_name.data = current_user.first_name
     form.last_name.data = current_user.last_name
     
-    return render_template('auth/account.html', form=form, title='Account')
+    return render_template('customer/account.html', form=form, title='Account')
 
 @customer.route('/orders')
 @login_required
@@ -71,7 +71,7 @@ def orders():
 
     orders = OrderDetail.query.all()
 
-    return render_template('auth/orders.html', orders=orders, title="Orders")
+    return render_template('customer/orders.html', orders=orders, title="Orders")
 
 
 @customer.route('/login', methods=['GET', 'POST'])
@@ -99,7 +99,7 @@ def login():
         else:
             flash('Invalid email or password.')
     # load login template
-    return render_template('auth/login.html', form=form, titile='Login')
+    return render_template('customer/login.html', form=form, titile='Login')
 
 @customer.route('/logout')
 @login_required
@@ -111,4 +111,4 @@ def logout():
     flash('You have successfully been logged out.')
 
     # redirect to the login page
-    return redirect(url_for('auth.login'))
+    return redirect(url_for('customer.login'))
