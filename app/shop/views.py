@@ -30,18 +30,6 @@ def index():
             raise
     return render_template('shop/index.html', categories=categories, products=products, title="Welcome")
 
-@shop.route('/admin/dashboard')
-@login_required
-def admin_dashboard():
-    """
-    Render the admin dashboard template on the /admin/dashboard route
-    """
-    # prevent non-admins from accessing the page
-    if not current_user.is_admin:
-        abort(403)
-
-    return render_template('admin/admin_dashboard.html', title="Dashboard")
-
 @shop.route('/order/confirm', methods=['GET', 'POST'])
 @login_required
 def confirm_order():

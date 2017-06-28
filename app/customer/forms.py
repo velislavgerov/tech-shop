@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm, RecaptchaField, Recaptcha
 from wtforms import PasswordField, StringField, SubmitField, ValidationError
 from wtforms.validators import DataRequired, Email, EqualTo
 
-from ..models import Customer
+from ..models import User
 
 ## May use in future, if we are to hold phone number values
 #def validate_phone(form, field):
@@ -32,7 +32,7 @@ class RegistrationForm(FlaskForm):
     submit = SubmitField('Register')
 
     def validate_email(self, field):
-        if Customer.query.filter_by(email=field.data).first():
+        if User.query.filter_by(email=field.data).first():
             raise ValidationError('Email is already in use.')
 
 class LoginForm(FlaskForm):

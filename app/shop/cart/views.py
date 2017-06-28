@@ -21,7 +21,7 @@ def cart():
     """
     # TODO: SHOULD CHECK PRODUCT AVAILABILITY AND FILTER UNAVAILABLE
     if current_user.is_authenticated:
-        cart_items = Cart.query.filter_by(customer_id=current_user.id).all()
+        cart_items = Cart.query.filter_by(user_id=current_user.id).all()
         quantities = {x.product_id: x.quantity for x in cart_items}
     else:
         quantities = guest_cart()
