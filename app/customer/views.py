@@ -88,7 +88,10 @@ def login():
         if user is not None and user.verify_password(
                 form.password.data):
             login_user(user)
-            return redirect(url_for('shop.index')) 
+            if current_user.user_role == 'admin':
+                return redirect(url_for('admin.dashboard'))
+            else:
+                return redirect(url_for('shop.index')) 
         # when login details are incorrect
         else:
             flash('Invalid email or password.')

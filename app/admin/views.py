@@ -43,7 +43,8 @@ def register():
                     first_name=form.first_name.data,
                     last_name=form.last_name.data,
                     password=form.password.data,
-                    is_admin=True,
+                    user_role='admin',
+                    is_registered=True,
                     created_at=datetime.utcnow())
         
         # add user to the database
@@ -56,39 +57,3 @@ def register():
 
     # load registration template
     return render_template('customer/register.html', form=form, title='Register')
-
-@admin.route('/login', methods=['GET', 'POST'])
-def login():
-    """Handle requests to the /login route
-    Log an employee in through the login form
-    """
-    
-    form = LoginForm()
-    if form.validate_on_submit():
-        # check weather user exists in the database and wherther
-        # the password entered matches the password in the database
-        user = User.query.filter_by(email=form.email.data).first()
-        if user is not None and user.verify_password(
-                form.password.data):
-            print(user)
-            login_user(user)
-            return redirect(url_for('admin.dashboard')) 
-        # when login details are incorrect
-        else:
-            flash('Invalid email or password.')
-    # load login template
-    return render_template('customer/login.html', form=form, titile='Login')
-
-@admin.route('/logout')
-@login_required
-def logout():
-    """Handle request to the /logout route
-    Log a user out thorugh the logout link
-    """
-    check_admin()
-
-    logout_user()
-    flash('You have successfully been logged out.')
-
-    # redirect to the login page
-    return redirect(url_for('admin.login'))
