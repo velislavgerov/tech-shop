@@ -12,13 +12,11 @@ class User(UserMixin, db.Model):
     __tablename__  = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(60), index=True, unique=True)
-    first_name = db.Column(db.String(60), index=True)
-    last_name = db.Column(db.String(60), index=True)
+    email = db.Column(db.Text, index=True, unique=True)
+    first_name = db.Column(db.Text, index=True)
+    last_name = db.Column(db.Text, index=True)
     password_hash = db.Column(db.String(128))
     is_admin = db.Column(db.Boolean, default=False)
-    #addresses = db.relationship('Address')
-    carts = db.relationship('Cart')
 
     @property
     def password(self):
@@ -42,31 +40,41 @@ class User(UserMixin, db.Model):
     def load_user(user_id):
         return User.query.get(int(user_id))
 
-class Address(db.Model):
-    """Create an Address table."""
+class Customer(UserMixin, db.Model)
+    """Create a Customer table"""
 
-    __tablename__ = 'addresses'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id')) # remove pk for multiple addresses
-    tel_number = db.Column(db.Text, nullable=False)
-    address_line_1 = db.Column(db.Text, nullable=False)
-    address_line_2 =  db.Column(db.Text)
-    city = db.Column(db.String(80), nullable=False)
-    country_code = db.Column(db.String(2))
-    postcode = db.Column(db.String(16), nullable=False)
-    county = db.Column(db.String(80))
-
-class Country(db.Model):
-    """Create a Country table."""
-
-    __tablename__ = 'countries'
+    __tablename__ = 'customers'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(80), nullable=False)
-    code = db.Column(db.String(2), unique=True)
-    allowed = db.Column(db.Boolean, default=False)
-    postcode_required = db.Column(db.Boolean, default=False)
+    first_name = db.Column(db.Text, index=True, nullable=False)
+    last_name = db.Column(db.Text, index=True, nullable=False)
+    email = db.Column(db.Text, index=True, nullable=False)
+    phone = db.Column(db.Text, index=True)
+    password_hash = db.Column(db.String(128))
+    is_registered = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime(), nullable=False)
+
+    @property
+    def password(self):
+        """Prevent password from beign accessed"""
+        raise AttributeError('password is not a readable attribute.')
+
+    @password.setter
+    def password(self, password):
+        """Hash an set password."""
+        self.password_hash = generate_password_hash(password)
+
+    def verify_password(self, password):
+        """Check if password matches actual password"""
+        return check_password_hash(self.password_hash, password)
+
+    def __repr__(self):
+        return '<Customer: {} {}'.format(self.first_name, self.last_name)
+
+    # Set up user_loader
+    @login_manager.user_loader
+    def load_user(customer_id):
+        return Customer.query.get(int(customer_id))
 
 class Product(db.Model):
     """Create a Product table."""
@@ -92,12 +100,10 @@ class Product(db.Model):
 
 class Supplier(db.Model):
     """Create a Supplier table"""
-    # XXX: What about distributors?
 
     __tablename__ = 'suppliers'
 
     id = db.Column(db.Integer, primary_key=True)
-    main_image = db.Column(db.Integer, db.ForeignKey('images.id'))
     name = db.Column(db.String(80), index=True, unique=True, nullable=False)
     description = db.Column(db.Text, nullable=False)
     website_url = db.Column(db.Text)
@@ -112,7 +118,7 @@ class Category(db.Model):
     name = db.Column(db.String(80), index=True, unique=True, nullable=False)
     description = db.Column(db.Text(), nullable=False)
 
-class Subategory(db.Model):
+class Subcategory(db.Model):
     """Create a Subategory table."""
     
     __tablename__ = 'subcategories'
@@ -139,47 +145,32 @@ class Cart(db.Model):
     __table_args__ = ( db.UniqueConstraint('user_id', 'product_id'), { } )
     
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    customer_id = db.Column(db.Integer, db.ForeignKey('customers.id'), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
     quantity = db.Column(db.Integer, default=1, nullable=False)
 
-class OrderStatus(Enum):
-    """Enum type to hold order statuses"""
-    RECV = "Order created"
-    PAID = "Payment confirmed"
-    DISP = "Dispatching"
-    SENT = "Delivering"
-    DLVD = "Delivered"
-
-class UserOrders(db.Model):
-    """Create an UserOrders table."""
+class OrderStatus(db.Model):
+    """Create a table to hold our order statuses"""
     
-    __tablename__ = 'users_orders'
+    __tablename__ = 'order_statuses'
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    order_id = db.Column(db.Text, db.ForeignKey('orders_detail.payment_id'))
+    name = db.Column(db.Text, unique=True, nullable=False)
+    description = db.Column(db.Text)
 
-class OrderDetail(db.Model):
-    """Create an OrderDetail table."""
-   
-    __tablename__ = 'orders_detail'
-    
-    payment_id = db.Column(db.Text, primary_key=True)
-    payment_token = db.Column(db.Text, index=True)
-    status = db.Column(db.Enum(OrderStatus), default=OrderStatus.RECV)
+class Order(db.Model)
+    """Create a table to hold our orders"""
+
+    __tablename__ = 'orders'
+
+    id = db.Column(db.Integer, primary_key=True)
+    customer = db.Column(db.Integer, db.ForeignKey('customers.id'))
+    status = db.Column(db.Integer, db.ForeignKey('order_statuses.id'))
+    payment_id = db.Column(db.Text, unique=True, nullable=False)
+    payment_token = db.Column(db.Text)
+    total_ammount = db.Column(db.Numeric(10,2), nullable=False)
     created_at = db.Column(db.DateTime(), nullable=False)
-    email = db.Column(db.String(60), index=True)
-    first_name = db.Column(db.String(60), index=True)
-    last_name = db.Column(db.String(60), index=True)
-    tel_number = db.Column(db.Text)
-    address_line_1 = db.Column(db.Text)
-    address_line_2 =  db.Column(db.Text)
-    city = db.Column(db.String(80))
-    county = db.Column(db.String(80))
-    postcode = db.Column(db.String(16))
-    country = db.Column(db.String(50))
-    message = db.Column(db.Text)
+    note = db.Column(db.Text)
 
 class OrderItem(db.Model):
     """Create an OrderItem table."""
@@ -188,9 +179,10 @@ class OrderItem(db.Model):
     __table_args__ = ( db.UniqueConstraint('product_id', 'order_id'), { } )
 
     id = db.Column(db.Integer, primary_key=True)
-    order_id = db.Column(db.Text, db.ForeignKey('orders_detail.payment_id'), nullable=False)
+    order_id = db.Column(db.Text, db.ForeignKey('orders.id'), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
     quantity = db.Column(db.Integer, default=1, nullable=False)
+    price = db.Column(db.Numeric(10,2), nullable=False)
 
 
 

@@ -18,7 +18,6 @@ def web_profile_id():
         "name": wpn,
         "presentation": {
             "brand_name": "Tech Shop",
-            "logo_image": "http://s3-ec.buzzfed.com/static/2014-07/18/8/enhanced/webdr02/anigif_enhanced-buzz-21087-1405685585-12.gif",
             "locale_code": "US"
         },
         "input_fields": {
@@ -27,12 +26,12 @@ def web_profile_id():
             "address_override": 1
         },
         "flow_config": {
-            "landing_page_type": "billing",
-            "bank_txn_pending_url": "http://www.yeowza.com"
+            "landing_page_type": "billing"
         }
     })
 
     if web_profile.create():
+        print(web_profile)
         print("Web Profile[%s] created successfully" % (web_profile.id))
         return web_profile.id
     else:
@@ -89,7 +88,7 @@ def create():
             {
                 "item_list": {
                     "items": items,
-                    "shipping_address": shipping_address 
+                    "shipping_address": shipping_address
                 },
                 "amount": ammount,
                 "description": "This is a registered user transaction."

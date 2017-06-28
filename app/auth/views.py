@@ -20,6 +20,7 @@ def register():
                     last_name=form.last_name.data,
                     password=form.password.data)
         
+        print(form.password.data)
         # add user to the database
         db.session.add(user)
         db.session.commit()

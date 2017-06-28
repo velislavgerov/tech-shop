@@ -1,0 +1,14 @@
+{% import "bootstrap/wtf.html" as wtf %}
+{% extends "base.html" %}
+{% block title %}Order Details{% endblock %}
+{% block body %}
+<div class="content-section">
+  <div class="center">
+    <br/>
+    <br/>
+    <h1>Order #{{ order.payment_id }}</h1>
+    <br/>
+    {{ wtf.quick_form(form) }}
+</div>
+</div>  
+{% endblock %}

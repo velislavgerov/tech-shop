@@ -4,6 +4,7 @@ from flask_login import current_user, login_required
 from .. import admin
 from ... import db
 from ...models import OrderDetail
+from .forms import StatusForm
 
 def check_admin():
     """
@@ -23,3 +24,16 @@ def list_orders():
     orders = OrderDetail.query.all()
 
     return render_template('admin/orders/orders.html', orders=orders, title="Orders")
+
+@admin.route('/orders/detail/<string:id>', methods=['GET','POST'])
+@login_required
+def edit_order(id):
+    """
+    List all departments
+    """
+    check_admin()
+
+    order = OrderDetail.query.filter_by(payment_id=id).first()
+    form = StatusForm()
+    form.status = order.status
+    return render_template('admin/orders/order.html', order=order, form=form, title="Order Detail")
