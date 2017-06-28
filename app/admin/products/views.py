@@ -17,7 +17,7 @@ def check_admin():
     """
     Prevent non-admins from accessing the page
     """
-    if not current_user.is_admin:
+    if not current_user.user_role == 'admin':
         abort(403)
 
 # Product views

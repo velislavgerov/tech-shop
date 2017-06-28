@@ -18,9 +18,9 @@
       <a class="navbar-brand" href="{{ url_for('shop.index') }}">Tech Shop</a>
       <div class="collapse navbar-collapse" id="navbarsExampleDefault">
         <ul class="navbar-nav mr-auto">
-          {% if current_user.is_authenticated and current_user.is_admin %}
+          {% if current_user.is_authenticated and current_user.user_role=='admin' %}
           <li class="nav-item {{ 'active' if request.path == '/admin/dashboard' }}">
-              <a class="nav-link" href="{{ url_for('shop.admin_dashboard') }}">Dashboard<span class="sr-only">(current)</span></a>
+              <a class="nav-link" href="{{ url_for('admin.dashboard') }}">Dashboard<span class="sr-only">(current)</span></a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('admin.list_products') }}">Products</a>
@@ -31,12 +31,14 @@
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('admin.list_orders') }}">Orders</a>
             </li>
-        {% endif %}
+          {% endif %}
         </ul>
         <ul class="navbar-nav navbar-right">
+          {% if current_user.is_authenticated and current_user.user_role=='customer' %}
           <li class="nav nav-item {{ 'active' if request.path == '/cart' }}">
             <a class="nav-link" href="{{ url_for('shop.cart') }}"><span class="fa fa-shopping-cart"></span> Shopping Cart</a>
           </li>
+          {% endif %}
           {% if current_user.is_authenticated %}
           <li class="nav-item {{ 'active' if request.path == '/account' or request.path == '/orders' }}">
             <a class="nav-link" href="{{ url_for('customer.account') }}"><i class="fa fa-user"></i>  Hi, {{ current_user.first_name }}!</a></li>

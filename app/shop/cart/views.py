@@ -123,7 +123,7 @@ def remove_one_cart_item(id):
     
     handle_item(id, do_work)
 
-    return redirect(url_for('cart.list_items'))
+    return redirect(url_for('shop.cart'))
 
 @shop.route('/cart/empty', methods=['GET','POST'])
 def empty_cart():

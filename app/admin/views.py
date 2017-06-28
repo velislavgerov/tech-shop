@@ -13,11 +13,7 @@ def check_admin():
     """
     Prevent non-admins from accessing the page
     """
-    try:
-        if not current_user.is_admin:
-            abort(403)
-    except AttributeError:
-        # customer's dont' have is_admin property
+    if not current_user.user_role == 'admin':
         abort(403)
 
 @admin.route('/')
@@ -26,7 +22,6 @@ def dashboard():
     """
     Render the admin dashboard template on the /admin/dashboard route
     """
-    print(current_user)
     check_admin()
 
     return render_template('admin/admin_dashboard.html', title="Dashboard")
