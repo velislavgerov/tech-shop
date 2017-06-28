@@ -31,13 +31,13 @@
                   <td>{{ product.quantity }}</td>
                   <td>{{ product.price }}&#x20AC;</td>
                   <td>
-                    <a href="{{ url_for('cart.add_to_cart', id=product.id) }}">
+                    <a href="{{ url_for('shop.add_to_cart', id=product.id) }}">
                       <i class="fa fa-plus"></i>
                     </a>
-                    <a href="{{ url_for('cart.remove_one_item', id=product.id) }}">
+                    <a href="{{ url_for('shop.remove_one_cart_item', id=product.id) }}">
                       <i class="fa fa-minus"></i>
                     </a> 
-                    <a href="{{ url_for('cart.remove_item', id=product.id) }}">
+                    <a href="{{ url_for('shop.remove_cart_item', id=product.id) }}">
                       <i class="fa fa-trash"></i> Remove 
                     </a>
                   </td>
@@ -45,7 +45,7 @@
               {% endfor %}
                 <tr>
                     <td>
-                    <a href="{{ url_for('home.homepage') }}" class="btn btn-default btn-md">
+                    <a href="{{ url_for('shop.index') }}" class="btn btn-default btn-md">
                 <i class="fa fa-plus"></i>
                 Add Another Product
             </a>
@@ -67,7 +67,7 @@
           <div style="text-align: center">
             <h3> Your shopping cart is empty. </h3>
             <hr class="intro-divider">
-            <a href="{{ url_for('home.homepage') }}" class="btn btn-default btn-lg">
+            <a href="{{ url_for('shop.index') }}" class="btn btn-default btn-lg">
                 <i class="fa fa-plus"></i>
                 Add Product
             </a>

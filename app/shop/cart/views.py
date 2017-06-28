@@ -2,10 +2,10 @@ from flask import flash, redirect, render_template, url_for, request, session
 from flask_login import current_user, login_required
 from sqlalchemy.exc import IntegrityError
 
-from . import cart
+from .. import shop
 
-from .. import db
-from ..models import Cart, Product
+from ... import db
+from ...models import Cart, Product
 
 def guest_cart():
     try:
@@ -14,14 +14,14 @@ def guest_cart():
         session['cart'] = {}
         return session['cart']
 
-@cart.route('/cart', methods=['GET','POST'])
-def list_items():
+@shop.route('/cart', methods=['GET','POST'])
+def cart():
     """
     List all items in cart
     """
     # TODO: SHOULD CHECK PRODUCT AVAILABILITY AND FILTER UNAVAILABLE
     if current_user.is_authenticated:
-        cart_items = Cart.query.filter_by(user_id=current_user.id).all()
+        cart_items = Cart.query.filter_by(customer_id=current_user.id).all()
         quantities = {x.product_id: x.quantity for x in cart_items}
     else:
         quantities = guest_cart()
@@ -36,9 +36,9 @@ def list_items():
     total = None
     if products:
         total = sum([x.price for x in products])
-    return render_template('cart/cart.html', products=products, total=total, title="Cart")
+    return render_template('shop/cart.html', products=products, total=total, title="Cart")
 
-@cart.route('/cart/add/<int:id>', methods=['GET','POST'])
+@shop.route('/cart/add/<int:id>', methods=['GET','POST'])
 def add_to_cart(id):
     """
     Add a product to cart
@@ -77,10 +77,10 @@ def add_to_cart(id):
 
     handle_item(id, do_work, not_found) 
  
-    return redirect(url_for('cart.list_items'))
+    return redirect(url_for('shop.cart'))
 
-@cart.route('/cart/remove/<int:id>', methods=['GET','POST'])
-def remove_item(id):
+@shop.route('/cart/remove/<int:id>', methods=['GET','POST'])
+def remove_cart_item(id):
     """
     Removes an item from the cart
     """
@@ -98,10 +98,10 @@ def remove_item(id):
     
     handle_item(id, do_work)
     
-    return redirect(url_for('cart.list_items'))
+    return redirect(url_for('shop.cart'))
 
-@cart.route('/cart/remove/one/<int:id>', methods=['GET','POST'])
-def remove_one_item(id):
+@shop.route('/cart/remove/one/<int:id>', methods=['GET','POST'])
+def remove_one_cart_item(id):
     """
     Decrements item count from the cart
     """
@@ -125,7 +125,7 @@ def remove_one_item(id):
 
     return redirect(url_for('cart.list_items'))
 
-@cart.route('/cart/empty', methods=['GET','POST'])
+@shop.route('/cart/empty', methods=['GET','POST'])
 def empty_cart():
     """
     Removes all items from user's cart
@@ -141,7 +141,7 @@ def empty_cart():
         raise
         flash('Sorry, you can\'t do that at the moment.')
     
-    return redirect(url_for('cart.list_items'))
+    return redirect(url_for('shop.cart'))
 
 def handle_item(id, do_work, not_found=None):
     """

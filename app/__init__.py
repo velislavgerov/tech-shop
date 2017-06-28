@@ -32,9 +32,6 @@ def create_app(config_name):
     from .shop import shop as shop_blueprint
     app.register_blueprint(shop_blueprint)
 
-    from .cart import cart as cart_blueprint
-    app.register_blueprint(cart_blueprint)
-
     from .payment import payment as payment_blueprint
     app.register_blueprint(payment_blueprint)
 
