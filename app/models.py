@@ -40,7 +40,7 @@ class User(UserMixin, db.Model):
     def load_user(user_id):
         return User.query.get(int(user_id))
 
-class Customer(UserMixin, db.Model)
+class Customer(UserMixin, db.Model):
     """Create a Customer table"""
 
     __tablename__ = 'customers'
@@ -158,7 +158,7 @@ class OrderStatus(db.Model):
     name = db.Column(db.Text, unique=True, nullable=False)
     description = db.Column(db.Text)
 
-class Order(db.Model)
+class Order(db.Model):
     """Create a table to hold our orders"""
 
     __tablename__ = 'orders'
