@@ -2,8 +2,6 @@ from flask_wtf import FlaskForm, RecaptchaField, Recaptcha
 from wtforms import PasswordField, StringField, SubmitField, ValidationError
 from wtforms.validators import DataRequired, Email, EqualTo
 
-from ..models import User, Country
-
 ## May use in future, if we are to hold phone number values
 #def validate_phone(form, field):
 #    if len(field.data) > 16:

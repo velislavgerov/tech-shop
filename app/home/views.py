@@ -1,10 +1,10 @@
 from flask import abort, flash, render_template, request, url_for, redirect
 from flask_login import current_user, login_required
 
-from ..models import Product, Category, Cart, Address, OrderDetail
+from ..models import Product, Category, Cart, Order
 from .. import db
 
-from ..auth.forms import AccountForm
+from ..customer.forms import AccountForm
 
 from . import home
 

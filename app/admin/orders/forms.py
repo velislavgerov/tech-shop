@@ -9,6 +9,6 @@ class StatusForm(FlaskForm):
     """
     Form for admin to add or edit a Category.
     """
-    choices = [(OrderStatus.SENT, 'Dispatched'),(OrderStatus.RECV, 'Received')]
-    status = SelectField('Status', validators=[DataRequired()], choices=choices)
+    #choices = [(OrderStatus.SENT, 'Dispatched'),(OrderStatus.RECV, 'Received')]
+    #status = SelectField('Status', validators=[DataRequired()], choices=choices)
     submit = SubmitField('Submit')

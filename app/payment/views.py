@@ -4,7 +4,7 @@ from paypalrestsdk import Payment, WebProfile, ResourceNotFound
 
 from . import payment
 
-from ..models import Product, Category, Cart, Address, OrderDetail, OrderItem, OrderStatus, UserOrders
+from ..models import Product, Category, Cart, OrderItem, OrderStatus
 from .. import db
 
 from datetime import datetime
@@ -43,25 +43,25 @@ def create():
     Create paypal payment
     """
     if current_user.is_authenticated:
-        address = Address.query.filter_by(user_id=current_user.id).first()    
-        if address:
-            shipping_address= {
-                    "recipient_name": "{} {}".format(current_user.first_name,
-                                                    current_user.last_name),
-                    "line1": address.address_line_1,
-                    "line2": address.address_line_2,
-                    "city": address.city,
-                    "phone": address.tel_number,
-                    "country_code": 'GB',
-                    "postal_code": address.postcode,
-                    "state": address.county
-                }
+        #address = Address.query.filter_by(user_id=current_user.id).first()    
+        #if address:
+        #    shipping_address= {
+        #            "recipient_name": "{} {}".format(current_user.first_name,
+        #                                            current_user.last_name),
+        #            "line1": address.address_line_1,
+        #            "line2": address.address_line_2,
+        #            "city": address.city,
+        #            "phone": address.tel_number,
+        #            "country_code": 'GB',
+        #            "postal_code": address.postcode,
+        #            "state": address.county
+        #        }
             # create order 
-        else:
-            response = jsonify(redirect_url=url_for('auth.account'))
-            response.status_code = 302
-            flash('You should update your account\'s address before you try to order')
-            return response
+        #else:
+        #    response = jsonify(redirect_url=url_for('auth.account'))
+        #    response.status_code = 302
+        #    flash('You should update your account\'s address before you try to order')
+        #    return response
         cart_items = Cart.query.filter_by(user_id=current_user.id).all()
         quantities = {x.product_id: x.quantity for x in cart_items}
         products = Product.query.filter(Product.id.in_(list(quantities.keys()))).all()
@@ -87,8 +87,7 @@ def create():
         transactions = [
             {
                 "item_list": {
-                    "items": items,
-                    "shipping_address": shipping_address
+                    "items": items
                 },
                 "amount": ammount,
                 "description": "This is a registered user transaction."
@@ -180,6 +179,7 @@ def execute():
 
     if payment.execute({"payer_id" : payerID}):  # return True or False
         print("Payment[%s] execute successfully" % (payment.id))
+        """
         user_id = 0
         if current_user.is_authenticated:
             user_id = current_user.id
@@ -249,6 +249,7 @@ def execute():
         response.status_code = 302
         flash('You have completed your order.')
         return response
+        """
 
     else:
         print(payment.error)

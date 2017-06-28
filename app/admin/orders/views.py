@@ -3,7 +3,7 @@ from flask_login import current_user, login_required
 
 from .. import admin
 from ... import db
-from ...models import OrderDetail
+from ...models import Order
 from .forms import StatusForm
 
 def check_admin():
@@ -21,7 +21,7 @@ def list_orders():
     """
     check_admin()
 
-    orders = OrderDetail.query.all()
+    orders = Order.query.all()
 
     return render_template('admin/orders/orders.html', orders=orders, title="Orders")
 
@@ -33,7 +33,7 @@ def edit_order(id):
     """
     check_admin()
 
-    order = OrderDetail.query.filter_by(payment_id=id).first()
+    order = Order.query.filter_by(payment_id=id).first()
     form = StatusForm()
     form.status = order.status
     return render_template('admin/orders/order.html', order=order, form=form, title="Order Detail")

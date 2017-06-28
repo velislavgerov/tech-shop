@@ -6,7 +6,7 @@ from sqlalchemy.exc import IntegrityError
 from .. import admin
 from .forms import ProductForm
 from ... import db
-from ...models import Product, Image, Category
+from ...models import Product, Category
 
 from os.path import join, dirname, relpath
 from os import remove

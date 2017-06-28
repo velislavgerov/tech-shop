@@ -95,8 +95,6 @@ class Product(db.Model):
     # last updates
     updated_by = db.Column(db.String(80), nullable=False)
     updated_at = db.Column(db.Date(), nullable=False)
-    images = db.relationship('Image')
-    carts = db.relationship('Cart')
 
 class Supplier(db.Model):
     """Create a Supplier table"""
@@ -128,21 +126,11 @@ class Subcategory(db.Model):
     name = db.Column(db.String(80), index=True, unique=True, nullable=False)
     description = db.Column(db.Text(), nullable=False)
 
-class Image(db.Model):
-    """Create an Image table."""
-
-    __tablename__ = 'images'
-
-    id = db.Column(db.Integer, primary_key=True)
-    product_id = db.Column(db.Integer, db.ForeignKey('products.id'))
-    filename = db.Column(db.Text, nullable=False)
-    description = db.Column(db.Text)
-
 class Cart(db.Model):
     """Create a Cart table."""
 
     __tablename__ = 'carts'
-    __table_args__ = ( db.UniqueConstraint('user_id', 'product_id'), { } )
+    __table_args__ = ( db.UniqueConstraint('customer_id', 'product_id'), { } )
     
     id = db.Column(db.Integer, primary_key=True)
     customer_id = db.Column(db.Integer, db.ForeignKey('customers.id'), nullable=False)

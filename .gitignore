@@ -4,3 +4,4 @@ env.sh
 *.swp
 heroku-util/
 migrations/
+countries/

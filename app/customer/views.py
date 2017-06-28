@@ -1,11 +1,11 @@
 from flask import flash, redirect, render_template, url_for
 from flask_login import login_required, login_user, logout_user, current_user
 
-from . import auth
+from . import customer
 from .forms import LoginForm, RegistrationForm, AccountForm
 
 from .. import db
-from ..models import Customer, OrderDetail
+from ..models import Customer, Order
 
 from datetime import datetime
 
@@ -21,7 +21,7 @@ def register():
                     first_name=form.first_name.data,
                     last_name=form.last_name.data,
                     password=form.password.data,
-                    is_registered=True
+                    is_registered=True,
                     created_at=datetime.utcnow())
         
         # add user to the database
@@ -46,6 +46,7 @@ def account():
         customer = Customer.query.filter_by(id=current_user.id).first()
         if not custommer:
             # Unexpected error
+            pass 
         customer.email = form.email.data
         try:
             db.session.merge(customer)
