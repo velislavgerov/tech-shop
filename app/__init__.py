@@ -29,8 +29,8 @@ def create_app(config_name):
     from .customer import customer as customer_blueprint
     app.register_blueprint(customer_blueprint)
 
-    from .home import home as home_blueprint
-    app.register_blueprint(home_blueprint)
+    from .shop import shop as shop_blueprint
+    app.register_blueprint(shop_blueprint)
 
     from .cart import cart as cart_blueprint
     app.register_blueprint(cart_blueprint)

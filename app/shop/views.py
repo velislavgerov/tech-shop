@@ -6,12 +6,12 @@ from .. import db
 
 from ..customer.forms import AccountForm
 
-from . import home
+from . import shop
 
 from datetime import datetime
 
-@home.route('/')
-def homepage():
+@shop.route('/')
+def index():
     """
     Render the homepage template on the / route
     """
@@ -28,9 +28,9 @@ def homepage():
             products = Product.query.filter_by(category_id = c_id.id).all()
         except:
             raise
-    return render_template('home/index.html', categories=categories, products=products, title="Welcome")
+    return render_template('shop/index.html', categories=categories, products=products, title="Welcome")
 
-@home.route('/admin/dashboard')
+@shop.route('/admin/dashboard')
 @login_required
 def admin_dashboard():
     """
@@ -40,9 +40,9 @@ def admin_dashboard():
     if not current_user.is_admin:
         abort(403)
 
-    return render_template('home/admin_dashboard.html', title="Dashboard")
+    return render_template('admin/admin_dashboard.html', title="Dashboard")
 
-@home.route('/order/confirm', methods=['GET', 'POST'])
+@shop.route('/order/confirm', methods=['GET', 'POST'])
 @login_required
 def confirm_order():
     """
@@ -65,7 +65,7 @@ def confirm_order():
             db.session.merge(address)
             db.session.commit()
             flash('You have succesfully confirmed your details.')
-            return redirect(url_for('home.finalize_order'))
+            return redirect(url_for('shop.finalize_order'))
         except:
             flash('Sorry, you can\'t do this right now.')
     
@@ -82,9 +82,9 @@ def confirm_order():
         form.country.data = address.country
     form.submit.label.text = "Confirm"
 
-    return render_template('home/confirm_order.html', form=form, title="Confirm Details")
+    return render_template('shop/confirm_order.html', form=form, title="Confirm Details")
 
-@home.route('/order/finalize', methods=['GET', 'POST'])
+@shop.route('/order/finalize', methods=['GET', 'POST'])
 @login_required
 def finalize_order():
     """
@@ -101,4 +101,4 @@ def finalize_order():
     if products:
         total = sum([x.price for x in products])   
 
-    return render_template('home/pay_order.html', products=products, total=total, title="Finalize Order")
+    return render_template('shop/pay_order.html', products=products, total=total, title="Finalize Order")

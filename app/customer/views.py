@@ -86,15 +86,8 @@ def login():
         customer = Customer.query.filter_by(email=form.email.data).first()
         if customer is not None and customer.verify_password(
                 form.password.data):
-            # log user in
             login_user(customer)
-            
-            # redirect to the the appropriate dashboard page
-            #if user.is_admin:
-            #    return redirect(url_for('home.admin_dashboard'))
-            #else:
-            #    return redirect(url_for('home.homepage'))
-
+            return redirect(url_for('shop.index')) 
         # when login details are incorrect
         else:
             flash('Invalid email or password.')
