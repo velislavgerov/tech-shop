@@ -167,7 +167,7 @@ class OrderItem(db.Model):
     __table_args__ = ( db.UniqueConstraint('product_id', 'order_id'), { } )
 
     id = db.Column(db.Integer, primary_key=True)
-    order_id = db.Column(db.Text, db.ForeignKey('orders.id'), nullable=False)
+    order_id = db.Column(db.Integer, db.ForeignKey('orders.id'), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
     quantity = db.Column(db.Integer, default=1, nullable=False)
     price = db.Column(db.Numeric(10,2), nullable=False)
