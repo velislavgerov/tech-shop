@@ -69,7 +69,7 @@ def orders():
     List all departments
     """
 
-    orders = OrderDetail.query.all()
+    orders = Order.query.all()
 
     return render_template('customer/orders.html', orders=orders, title="Orders")
 
