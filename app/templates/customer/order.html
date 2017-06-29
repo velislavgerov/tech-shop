@@ -6,6 +6,24 @@
   <br/>
   {{ utils.flashed_messages() }}
   <br/>
-  <h1 style="text-align:center;">Order Details</h1>
+  <h1 style="text-align:center;">Order #{{order.id}}</h1>
+  <hr class="intro-divider">
+  <h3 style="text-align:center;">Details</h3>
+  <dl class="row">
+    <dt class="col-sm-3">Order number</dt>
+    <dd class="col-sm-9">{{order.id}}</dd>
+
+    <dt class="col-sm-3">Order created at</dt>
+    <dd class="col-sm-9">{{ order.created_at.strftime('%d-%m-%Y %H:%M') }} </dd>
+
+    <dt class="col-sm-3">Order status</dt>
+    <dd class="col-sm-9"><div class="alert alert-warning" role="alert"><strong>{{order.status.name}}</strong> ({{order.status.description}})<div></dd>
+    
+    <dt class="col-sm-3">Payment type</dt>
+    <dd class="col-sm-9">PayPal</dd>
+
+    <dt class="col-sm-3">Payment number</dt>
+    <dd class="col-sm-9">{{order.payment_id}}</dd>
+  </dl>
 </div>
 {% endblock %}
