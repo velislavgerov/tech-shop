@@ -71,7 +71,10 @@ def add_to_cart(id):
                 raise
                 flash('Sorry, you can\'t do that right now.')
         else:
-            cart = session['cart']
+            try:
+                cart = session['cart']
+            except KeyError:
+                cart = {}
             cart[str(id)] = 1
             session['cart'] = cart
 
