@@ -201,28 +201,34 @@ def execute():
                 return('', 500)
             product_updates.append(product)
         try:
+            # update order
             db.session.merge(order)
+            # add order items
             for item in order_items:
                 db.session.add(item)
+            # clear cart
             if current_user.is_authenticated:
                 cart_items = Cart.query.filter_by(user_id=current_user.id).all()
                 for item in cart_items:
                     db.session.delete(item)
             else:
                 session['cart'] = {}
+            # update product quantities
             for item in product_updates:
                 db.session.merge(item) 
+            # commit transaction
             db.session.commit()
         except:
-            raise
+            raise #TODO: ErrorHandling
             return('', 500)
-        response = jsonify(redirect_url=url_for('customer.orders'))
+        response = jsonify(redirect_url=url_for('customer.order_detail', id=order.id, u_id=order.user_id))
         response.status_code = 302
-        flash('You have completed your order.')
+        flash('You have successfully completed your  order.')
         return response
 
     else:
         print(payment.error)
+        #TODO: Error Handling
     return ('', 500)
 
 @payment.route('/payment/cancel', methods=['GET', 'POST'])
@@ -231,12 +237,12 @@ def cancel():
     return ('', 204)
 
 
-@payment.route('/payment/detail', methods=['POST'])
-def detail():
+@payment.route('/payment/detail/<string:id>')
+def detail(id):
     """
     Get paypal payment detail
     """
-    payment_id = request.form['paymentID']
+    payment_id = id
     print(request)
     try:
         # Retrieve the payment object by calling the
@@ -244,10 +250,16 @@ def detail():
         # on the Payment class by passing Payment ID
         payment = Payment.find(payment_id)
         print("Got Payment Details for Payment[%s]" % (payment.id))
-        print(payment)
-        return jsonify(str(payment))
+        items = payment.transactions[0].item_list.items
+        shipping_address = payment.transactions[0].item_list.shipping_address
+        payer = payment.payer
+        ammount = payment.transactions[0].ammount
+        if payment.stat == 'approved':
+            flash('Your payment has been successful')
+        return render_template('payment/payment.html', items=items, shipping_address=shipping_address, payer=payer, ammount=ammount, title="Payment")
 
     except ResourceNotFound as error:
         # It will through ResourceNotFound exception if the payment not found
-        print("Payment Not Found")
+        flash("Payment Not Found")
+        return redirect(url_for('shop.index')) 
 

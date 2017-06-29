@@ -23,19 +23,21 @@
     <table class="table table-responsive">
         <thead>
            <tr>
-             <th>OrderId</th>
+             <th>Payment ID</th>
              <th>Date</th>
+             <th>Note</th>
+             <th>Ammount</th>
              <th>Status</th>
-             <th>Message</th>
             </tr>
               </thead>
               <tbody>
               {% for order in orders %}
               <tr>
-                  <td> {{ order.id }} </td>
+                  <td> {{ order.payment_id }} </td>
                   <td> {{ order.created_at }} </td>
-                  <td> {{ order.status.value }} </td>
-                  <td>{{ order.message }} </td>
+                  <td>{{ order.note }} </td>
+                  <td> {{order.total_ammount}} </td>
+                  <td> {{ order.status.name }} </td>
               </tr>
               {% endfor %}
               </tbody>

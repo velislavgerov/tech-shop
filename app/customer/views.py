@@ -70,12 +70,32 @@ def account():
 @login_required
 def orders():
     """
-    List all departments
+    List all orders
     """
-
-    orders = Order.query.all()
+    
+    orders = Order.query.filter_by(user_id=current_user.id).all()
 
     return render_template('customer/orders.html', orders=orders, title="Orders")
+
+@customer.route('/orders/detail/<int:id>', defaults={'u_id': None})
+@customer.route('/orders/detail/<int:id>/<int:u_id>')
+def order_detail(id, u_id):
+    """
+    List all details for order by id
+    """
+    if not u_id and current_user.is_authenticated:
+        u_id = current_user.id
+
+    order = Order.query.filter_by(id=id, user_id=u_id).first()
+    if not order:
+        flash('Order not found.')
+        if current_user.is_authenticated:
+            return redirect(url_for('customer.orders'))
+        else:
+            return redirect(url_for('shop.index'))
+    
+    return render_template('customer/order.html', order=order, title="Order Details")
+
 
 
 @customer.route('/login', methods=['GET', 'POST'])

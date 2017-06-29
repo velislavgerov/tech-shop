@@ -127,6 +127,8 @@ class Order(db.Model):
     total_ammount = db.Column(db.Numeric(10,2), nullable=False)
     created_at = db.Column(db.DateTime(), nullable=False)
     note = db.Column(db.Text)
+    status = db.relationship("OrderStatus", backref="parents")
+    user = db.relationship("User", backref="parents")
 
 class OrderItem(db.Model):
     """Create an OrderItem table."""
