@@ -56,7 +56,7 @@ def add_to_cart(id):
                 db.session.commit()
             else:
                 session['cart'][str(product.id)] += 1
-            flash('Item updated.')
+            flash('Cart item updated.')
     
     def not_found():
         if current_user.is_authenticated:
@@ -64,7 +64,7 @@ def add_to_cart(id):
             try:
                 db.session.add(item)
                 db.session.commit()
-                flash('Item added.')
+                flash('Item added to cart.')
             except IntegrityError:
                 flash('Invalid item.')
             except:
@@ -92,7 +92,7 @@ def remove_cart_item(id):
             else:
                 del session['cart'][str(id)]
 
-            flash('Item removed.')
+            flash('Item removed from cart.')
         except:
             flash('Sorry, you can\'t do that at the moment.')
     
@@ -113,7 +113,7 @@ def remove_one_cart_item(id):
                 db.session.commit()
             else:
                 session['cart'][str(id)] -= 1
-            flash('Item updated.')
+            flash('Cart item updated.')
         elif item.quantity == 1:
             if current_user.is_authenticated:
                 db.session.delete(item)
