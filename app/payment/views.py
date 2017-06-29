@@ -4,13 +4,15 @@ from paypalrestsdk import Payment, WebProfile, ResourceNotFound
 
 from . import payment
 
-from ..models import Product, Category, Cart, OrderItem, OrderStatus
+from ..models import Product, Category, Cart, Order, OrderItem, OrderStatus, User
 from .. import db
 
 from datetime import datetime
 import random, string
+from decimal import Decimal
 
 def web_profile_id():
+    # TODO: Use a single webprofile
     # Name needs to be unique so just generating a random one
     wpn = ''.join(random.choice(string.ascii_uppercase) for i in range(12))
 
@@ -42,11 +44,11 @@ def create():
     """
     Create paypal payment
     """
+    total = None
     if current_user.is_authenticated:
         cart_items = Cart.query.filter_by(user_id=current_user.id).all()
         quantities = {x.product_id: x.quantity for x in cart_items}
         products = Product.query.filter(Product.id.in_(list(quantities.keys()))).all()
-        total = None
         if products:
             total = sum([x.price*quantities[x.id] for x in products])
         ammount = {
@@ -68,7 +70,6 @@ def create():
         # Specifically, we currently use items and ammount
         cart_items = session['cart']
         products = Product.query.filter(Product.id.in_(list(cart_items.keys()))).all()
-        total = None
         if products:
             total = sum([x.price*cart_items[str(x.id)] for x in products])
         ammount = {
@@ -85,17 +86,6 @@ def create():
                         "sku": str(item.id),
                         "currency": "EUR"
                         })
-        transactions = [
-            {
-                # ItemList
-                "item_list": {
-                    "items": items, 
-                },
-                "amount": ammount,
-                "description": "This is a guest transaction."
-            }
-        ]
-    
     payment = Payment({
         "intent": "sale",
         "experience_profile_id": web_profile_id(),
@@ -111,36 +101,48 @@ def create():
         "payer": {
             "payment_method": "paypal",
         },
-        "transactions": transactions
+        "transactions": [
+        {
+            # ItemList
+            "item_list": {
+                "items": items, 
+            },
+            "amount": ammount,
+            "description": "This is a guest transaction."
+        }
+    ]
         })
     
-    print(payment)
     # Create Payment and return status( True or False )
     if payment.create():
-        print(payment.__dict__)
         print("Payment[%s] created successfully" % (payment.id))
         # Create guest user
-        guest_name = 'guest_{}'.format(''.join(random.choice(string.ascii_uppercase) for i in range(12)))
-        guest = User(
-                username=guest_name,
-                created_at=datetime.utcnow(),
-                user_role='customer',
-                is_registered=False
-                )
-        try:
-            db.session.add(guest)
-            db.session.flush()
-        except:
-            raise #TODO ErrorHandling
-                
-        status_id = OrderStatus.query.filter_by(name='Pending payment').first()
-        if not status_id: 
+        if not current_user.is_authenticated:
+            guest_name = 'guest_{}'.format(''.join(random.choice(string.ascii_uppercase) for i in range(12)))
+            guest = User(
+                    username=guest_name,
+                    created_at=datetime.utcnow(),
+                    user_role='customer',
+                    is_registered=False
+                    )
+            try:
+                db.session.add(guest)
+                db.session.flush()
+                u_id = guest.id
+            except:
+                raise #TODO ErrorHandling
+        else:
+            u_id = current_user.id
+        
+        # Set initial status
+        status = OrderStatus.query.filter_by(name='Pending payment').first()
+        if not status: 
             pass #TODO ErrorHandling
         order = Order(
                 created_at=datetime.utcnow(),
                 payment_id=payment.id,
-                user_id=guest.id,
-                total_ammount=ammount,
+                user_id=u_id,
+                total_ammount=total,
                 status_id=status.id
                 )
         try:
@@ -171,45 +173,25 @@ def execute():
 
     if payment.execute({"payer_id" : payerID}):  # return True or False
         print("Payment[%s] execute successfully" % (payment.id))
-        """
-        user_id = 0
-        if current_user.is_authenticated:
-            user_id = current_user.id
-        address = payment.transactions[0].item_list.shipping_address
-        phone = payment.transactions[0].item_list.shipping_phone_number
-        items = payment.transactions[0].item_list.items
-        print(address)
-        print(phone)
-        print(items)
-
         # find corresponding order and change it's status
-        order = OrderDetail.query.filter_by(payment_id=paymentID).first()
-        order.status = OrderStatus.PAID
-        order.first_name = address['recipient_name'].split(' ',1)[0]
-        order.last_name = address['recipient_name'].rsplit(' ',1)[1]
-        order.address_line_1 = address['line1']
-        try:
-            order.address_line_2 = address['line2']
-        except KeyError:
-            pass #line 2 missing
-        order.city = address['city']
-        order.county = address['state']
-        order.postcode = address['postal_code']
-        order.country = address['country_code']
-        order.phone = phone
-
-
-        if not order: 
-            return('', 500)
+        order = Order.query.filter_by(payment_id=paymentID).first()
+        if not order:
+            pass #TODO ErrorHandling
+        status = OrderStatus.query.filter_by(name='Processing').first()
+        if not status: 
+            pass #TODO ErrorHandling
+        order.status_id = status.id        
         
+        items = payment.transactions[0].item_list.items
         order_items = []
         product_updates = []
         for item in items:
             # move cart items to order items
             order_items.append(OrderItem(
-                    order_id=order.payment_id,
+                    order_id=order.id,
                     product_id=item.sku,
-                    quantity=item.quantity))
+                    quantity=item.quantity,
+                    price=Decimal(item.price)))
             # decrese product count
             product = Product.query.filter_by(id=item.sku).first()
             if not product:
@@ -218,9 +200,6 @@ def execute():
             if product.quantity < 0:
                 return('', 500)
             product_updates.append(product)
-        
-        user_order = UserOrders(user_id=user_id, order_id=order.payment_id)
-
         try:
             db.session.merge(order)
             for item in order_items:
@@ -232,16 +211,15 @@ def execute():
             else:
                 session['cart'] = {}
             for item in product_updates:
-                db.session.merge(item)
-            db.session.add(user_order)
+                db.session.merge(item) 
             db.session.commit()
         except:
+            raise
             return('', 500)
-        response = jsonify(redirect_url=url_for('auth.orders'))
+        response = jsonify(redirect_url=url_for('customer.orders'))
         response.status_code = 302
         flash('You have completed your order.')
         return response
-        """
 
     else:
         print(payment.error)
