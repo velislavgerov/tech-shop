@@ -153,9 +153,11 @@ def handle_item(id, do_work, not_found=None):
     if current_user.is_authenticated:
         item = Cart.query.filter(Cart.user_id == current_user.id).filter(Cart.product_id == id).first()
     else:
-        if session['cart']:
+        try:
             if str(id) in session['cart']:
                 item = Cart(user_id=None, product_id=id, quantity=session['cart'][str(id)])
+        except KeyError:
+            pass
 
     if item:
         # do the work
