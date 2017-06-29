@@ -1,5 +1,7 @@
 from flask import flash, redirect, render_template, url_for
 from flask_login import login_required, login_user, logout_user, current_user
+from paypalrestsdk import Payment, ResourceNotFound
+
 
 from . import customer
 from .forms import LoginForm, RegistrationForm, AccountForm
@@ -94,8 +96,23 @@ def order_detail(id, u_id):
         else:
             return redirect(url_for('shop.index'))
     
-    return render_template('customer/order.html', order=order, title="Order Details")
+    try:
+        # Retrieve the payment object by calling the
+        # `find` method
+        # on the Payment class by passing Payment ID
+        payment = Payment.find(order.payment_id)
+        print("Got Payment Details for Payment[%s]" % (payment.id))
+        #items = payment.transactions[0].item_list.items
+        shipping_address = payment.transactions[0].item_list.shipping_address
+        shipping_address.phone = payment.payer.payer_info.phone
+        #payer = payment.payer
+        #ammount = payment.transactions[0].ammount
+        return render_template('customer/order.html', order=order, shipping_address=shipping_address, title="Order Details")
 
+    except ResourceNotFound as error:
+        # It will through ResourceNotFound exception if the payment not found
+        flash("Payment Not Found")
+        return redirect(url_for('shop.index')) 
 
 
 @customer.route('/login', methods=['GET', 'POST'])

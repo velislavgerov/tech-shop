@@ -129,6 +129,7 @@ class Order(db.Model):
     note = db.Column(db.Text)
     status = db.relationship("OrderStatus", backref="parents")
     user = db.relationship("User", backref="parents")
+    items = db.relationship("OrderItem", backref="parents")
 
 class OrderItem(db.Model):
     """Create an OrderItem table."""
@@ -141,3 +142,4 @@ class OrderItem(db.Model):
     product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
     quantity = db.Column(db.Integer, default=1, nullable=False)
     price = db.Column(db.Numeric(10,2), nullable=False)
+    product = db.relationship("Product", backref="parents")
