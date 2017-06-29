@@ -43,25 +43,6 @@ def create():
     Create paypal payment
     """
     if current_user.is_authenticated:
-        #address = Address.query.filter_by(user_id=current_user.id).first()    
-        #if address:
-        #    shipping_address= {
-        #            "recipient_name": "{} {}".format(current_user.first_name,
-        #                                            current_user.last_name),
-        #            "line1": address.address_line_1,
-        #            "line2": address.address_line_2,
-        #            "city": address.city,
-        #            "phone": address.tel_number,
-        #            "country_code": 'GB',
-        #            "postal_code": address.postcode,
-        #            "state": address.county
-        #        }
-            # create order 
-        #else:
-        #    response = jsonify(redirect_url=url_for('auth.account'))
-        #    response.status_code = 302
-        #    flash('You should update your account\'s address before you try to order')
-        #    return response
         cart_items = Cart.query.filter_by(user_id=current_user.id).all()
         quantities = {x.product_id: x.quantity for x in cart_items}
         products = Product.query.filter(Product.id.in_(list(quantities.keys()))).all()
@@ -82,19 +63,8 @@ def create():
                         "sku": str(item.id),
                         "currency": "EUR"
                         })
-
-        # transaction object as part of the paypal api
-        transactions = [
-            {
-                "item_list": {
-                    "items": items
-                },
-                "amount": ammount,
-                "description": "This is a registered user transaction."
-            }
-        ]
     else:
-        # Geneerate PayPal transactions data from the guest cart
+        # Generate PayPal transactions data from the guest cart
         # Specifically, we currently use items and ammount
         cart_items = session['cart']
         products = Product.query.filter(Product.id.in_(list(cart_items.keys()))).all()
@@ -149,24 +119,46 @@ def create():
     if payment.create():
         print(payment.__dict__)
         print("Payment[%s] created successfully" % (payment.id))
-        order = OrderDetail(
+        # Create guest user
+        guest_name = 'guest_{}'.format(''.join(random.choice(string.ascii_uppercase) for i in range(12)))
+        guest = User(
+                username=guest_name,
                 created_at=datetime.utcnow(),
-                payment_id=payment.id
+                user_role='customer',
+                is_registered=False
+                )
+        try:
+            db.session.add(guest)
+            db.session.flush()
+        except:
+            raise #TODO ErrorHandling
+                
+        status_id = OrderStatus.query.filter_by(name='Pending payment').first()
+        if not status_id: 
+            pass #TODO ErrorHandling
+        order = Order(
+                created_at=datetime.utcnow(),
+                payment_id=payment.id,
+                user_id=guest.id,
+                total_ammount=ammount,
+                status_id=status.id
                 )
         try:
             db.session.add(order)
             db.session.commit()
         except:
-            raise
+            raise #TODO ErrorHandling
             return jsonify()
-
+        
+        # Order created
         return jsonify(paymentID=payment.id)
     else:
         # Display Error message
         print("Error while creating payment:")
         print(payment.error)
+        #TODO ErrorHandling: Specific -> General 
         flash('Sorry, you can\'t pay right now. Please try again.')
-        return jsonify()
+        return jsonify(error='payment failed')
 
 @payment.route('/payment/execute', methods=['POST'])
 def execute():
