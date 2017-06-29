@@ -34,7 +34,7 @@
           {% endif %}
         </ul>
         <ul class="navbar-nav navbar-right">
-          {% if current_user.is_authenticated and current_user.user_role=='customer' %}
+          {% if (current_user.is_authenticated and current_user.user_role=='customer') or not current_user.is_authenticated %}
           <li class="nav nav-item {{ 'active' if request.path == '/cart' }}">
             <a class="nav-link" href="{{ url_for('shop.cart') }}"><span class="fa fa-shopping-cart"></span> Shopping Cart</a>
           </li>
