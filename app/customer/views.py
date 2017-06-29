@@ -62,7 +62,7 @@ def account():
             raise
             flash('There was a problem with our database. Please, try again later.')
    
-    form.username = current_user.username
+    form.username.data = current_user.username
     form.email.data = current_user.email
     form.first_name.data = current_user.first_name
     form.last_name.data = current_user.last_name
