@@ -35,7 +35,7 @@
                   <td> {{ order.created_at.strftime('%d-%m-%Y %H:%M') }} </td>
                   <td> {{ order.status.name }}</td>
                   <td>
-                    <a href="{{ url_for('customer.order', id=order.id, u_id=order.user_id) }}">
+                    <a href="{{ url_for('customer.order_detail', id=order.id, u_id=order.user_id) }}">
                       <i class="fa fa-info"></i> Details
                     </a>
                   </td>
