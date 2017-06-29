@@ -140,6 +140,7 @@ def create():
             pass #TODO ErrorHandling
         order = Order(
                 created_at=datetime.utcnow(),
+                updated_at=datetime.utcnow(),
                 payment_id=payment.id,
                 user_id=u_id,
                 total_ammount=total,

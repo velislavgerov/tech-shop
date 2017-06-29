@@ -120,9 +120,8 @@ def order_detail(id, u_id):
         if current_user.is_authenticated and current_user.user_role == 'admin':
             form = StatusForm()
             if form.validate_on_submit():
-                #status = OrderStatus.query.filter_by(name=form.status.data).first()
                 order.status = form.status.data
-
+                order.updated_at = datetime.utcnow()
                 try:
                     db.session.merge(order)
                     db.session.commit()
