@@ -5,10 +5,15 @@ from wtforms.ext.sqlalchemy.fields import QuerySelectField
 
 from ...models import OrderStatus
 
+
+def enabled_statuses():
+    return OrderStatus.query.all()
+
 class StatusForm(FlaskForm):
     """
     Form for admin to add or edit a Category.
     """
-    #choices = [(OrderStatus.SENT, 'Dispatched'),(OrderStatus.RECV, 'Received')]
-    #status = SelectField('Status', validators=[DataRequired()], choices=choices)
-    submit = SubmitField('Submit')
+    status = QuerySelectField('Status', query_factory=enabled_statuses, get_label='name', allow_blank=False) 
+    submit = SubmitField('Update')
+
+

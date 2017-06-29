@@ -4,10 +4,11 @@ from paypalrestsdk import Payment, ResourceNotFound
 
 
 from . import customer
+from ..admin.orders.forms import StatusForm
 from .forms import LoginForm, RegistrationForm, AccountForm
 
 from .. import db
-from ..models import User, Order
+from ..models import User, Order, OrderStatus
 
 from datetime import datetime
 
@@ -79,8 +80,8 @@ def orders():
 
     return render_template('customer/orders.html', orders=orders, title="Orders")
 
-@customer.route('/orders/detail/<int:id>', defaults={'u_id': None})
-@customer.route('/orders/detail/<int:id>/<int:u_id>')
+@customer.route('/orders/detail/<int:id>', defaults={'u_id': None}, methods=['GET', 'POST'])
+@customer.route('/orders/detail/<int:id>/<int:u_id>', methods=['GET', 'POST'])
 def order_detail(id, u_id):
     """
     List all details for order by id
@@ -89,7 +90,13 @@ def order_detail(id, u_id):
         u_id = current_user.id
 
     order = Order.query.filter_by(id=id, user_id=u_id).first()
-    if not order:
+
+    # - guest orders are publically visible
+    # - user orders are visible only to them
+    if not order \
+        or (current_user.is_authenticated and order.user.id != current_user.id\
+        and not current_user.user_role == 'admin')\
+        or (not current_user.is_authenticated and order.user.is_registered):
         flash('Order not found.')
         if current_user.is_authenticated:
             return redirect(url_for('customer.orders'))
@@ -107,12 +114,37 @@ def order_detail(id, u_id):
         shipping_address.phone = payment.payer.payer_info.phone
         #payer = payment.payer
         #ammount = payment.transactions[0].ammount
-        return render_template('customer/order.html', order=order, shipping_address=shipping_address, title="Order Details")
+        
+        # admin only
+        form = None
+        if current_user.is_authenticated and current_user.user_role == 'admin':
+            form = StatusForm()
+            if form.validate_on_submit():
+                #status = OrderStatus.query.filter_by(name=form.status.data).first()
+                order.status = form.status.data
+
+                try:
+                    db.session.merge(order)
+                    db.session.commit()
+                except:
+                    flash('You can\'t do this right now.')
+                
+                return render_template('customer/order.html', order=order, shipping_address=shipping_address, form=form, title="Order Details")
+
+            form.status.data = order.status 
+
+        return render_template('customer/order.html', order=order, shipping_address=shipping_address, form=form, title="Order Details")
 
     except ResourceNotFound as error:
         # It will through ResourceNotFound exception if the payment not found
+        # Hm?
         flash("Payment Not Found")
-        return redirect(url_for('shop.index')) 
+        return redirect(url_for('shop.index'))
+    
+    except ConnectionError as error:
+        flash('There was a problem with contacting PayPal. Please try again later')
+        return redirect(url_for('shop.index'))
+
 
 
 @customer.route('/login', methods=['GET', 'POST'])
