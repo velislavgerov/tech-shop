@@ -89,8 +89,12 @@ def delete_category(id):
     check_admin()
 
     category = Category.query.get_or_404(id)
-    db.session.delete(category)
-    db.session.commit()
+    try:
+        db.session.delete(category)
+        db.session.commit()
+    except IntegrityError:
+        flash('You can\'t delete a category whilst there are items belonging to it!')
+        return redirect(url_for('admin.list_categories'))
 
     flash('You have successfully deleted the category.')
 
