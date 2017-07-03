@@ -43,29 +43,29 @@
   <div class="order-shipping-address">
   <dl class="row">
     <dt class="col-sm-4">Recipient name</dt>
-    <dd class="col-sm-8">{{shipping_address.recipient_name}}</dd>
+    <dd class="col-sm-8">{{shipping_address.recipient_name or '-'}}</dd>
 
     <dt class="col-sm-4">Address line 1</dt>
-    <dd class="col-sm-8">{{shipping_address.line1}} </dd>
+    <dd class="col-sm-8">{{shipping_address.line1 or '-'}} </dd>
 
     <dt class="col-sm-4">Address line 2</dt>
     <dd class="col-sm-8">{{shipping_address.line2 or '-'}} </dd>
 
 
     <dt class="col-sm-4">City</dt>
-    <dd class="col-sm-8">{{shipping_address.city}}</dd>
+    <dd class="col-sm-8">{{shipping_address.city or '-'}}</dd>
     
     <dt class="col-sm-4">State</dt>
-    <dd class="col-sm-8">{{shipping_address.state}}</dd>
+    <dd class="col-sm-8">{{shipping_address.state or '-'}}</dd>
 
     <dt class="col-sm-4">Phone</dt>
-    <dd class="col-sm-8">{{shipping_address.phone}}</dd>
+    <dd class="col-sm-8">{{shipping_address.phone or '-'}}</dd>
     
     <dt class="col-sm-4">Poscode</dt>
-    <dd class="col-sm-8">{{shipping_address.postal_code}}</dd>
+    <dd class="col-sm-8">{{shipping_address.postal_code or '-'}}</dd>
     
     <dt class="col-sm-4">Country</dt>
-    <dd class="col-sm-8">{{shipping_address.country_code}}</dd>
+    <dd class="col-sm-8">{{shipping_address.country_code or '-'}}</dd>
 
   </dl>
   </br>
@@ -98,11 +98,11 @@
     {% if not order.cancelled %}
     <a style="align:center;" href="{{ url_for('customer.cancel_order', id=order.id) }}" class="btn btn-default btn-lg">
             <i class="fa fa-euro"></i>
-            Cancel order
+            Request refund
     </a>
     {% else %}
     <div class="alert alert-warning" role="alert">
-            <strong>Warning!</strong>You have submitted a request to cancel this order.</a>.
+            You have submitted a request to cancel this order.
     </div>
     {% endif %}
 
@@ -113,13 +113,19 @@
     {% elif current_user.is_authenticated and current_user.user_role=='admin'%}
         {% if order.cancelled %}
         <div class="alert alert-warning" role="alert">
-            <strong>Warning!</strong>The customer has submitted a request to cancel this order.</a>.
+            The customer has submitted a request to cancel this order.
         </div>
         {% endif %}
         <a style="align:center;" href="{{ url_for('admin.refund_order', id=order.id) }}" class="btn btn-default btn-lg">
             <i class="fa fa-university"></i>
             Refund
          </a>
+         {% if order.status.name == 'Pending payment' %}
+        <a style="align:center;" href="{{ url_for('admin.remove_order', id=order.id) }}" class="btn btn-default btn-lg">
+            <i class="fa fa-trash"></i>
+            Delete
+         </a>
+        {% endif %}
         {{ wtf.quick_form(form) }}
     {% endif %}
 </div>

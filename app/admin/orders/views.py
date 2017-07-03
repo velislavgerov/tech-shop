@@ -42,6 +42,31 @@ def edit_order(id):
     form.status = order.status
     return render_template('admin/orders/order.html', order=order, form=form, title="Order Detail")
 
+@admin.route('/orders/remove/<int:id>', methods=['GET','POST'])
+@login_required
+def remove_order(id):
+    """
+    List all departments
+    """
+    check_admin()
+
+    order = Order.query.filter_by(id=id).first()
+    if not order:
+        print("not found")
+        flash('Could not find order.')
+        return redirect(url_for('admin.list_orders'))
+    if order.status.name != 'Pending payment':
+        print("pending")
+        flash('You can\'t delete this order.')
+    else:
+        try:
+            db.session.delete(order)
+            db.session.commit()
+            flash('Order deleted.')
+        except:
+            raise
+    return redirect(url_for('admin.list_orders'))
+
 @admin.route('/orders/refund/<int:id>', methods=['GET','POST'])
 @login_required
 def refund_order(id):

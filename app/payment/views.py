@@ -152,7 +152,8 @@ def create():
         except:
             raise #TODO ErrorHandling
             return jsonify()
-        
+       
+        print(payment)
         # Order created
         return jsonify(paymentID=payment.id)
     else:

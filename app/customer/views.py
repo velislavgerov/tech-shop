@@ -113,11 +113,14 @@ def order_detail(id, u_id):
         payment = Payment.find(order.payment_id)
         print("Got Payment Details for Payment[%s]" % (payment.id))
         #items = payment.transactions[0].item_list.items
-        shipping_address = None
-        shipping_address = payment.transactions[0].item_list.shipping_address
-        shipping_address.phone = payment.payer.payer_info.phone
+        print(payment)
+        shipping_address = payment.transactions[0].item_list.shipping_address or None
+        if shipping_address: shipping_address.phone = payment.payer.payer_info.phone
         #payer = payment.payer
-        payment_state = payment.transactions[0].related_resources[0].sale.state 
+        try:
+            payment_state = payment.transactions[0].related_resources[0].sale.state
+        except IndexError:
+            payment_state = payment.state
         # admin only
         form = None
         if current_user.is_authenticated and current_user.user_role == 'admin':
