@@ -113,8 +113,7 @@ def order_detail(id, u_id):
         shipping_address = payment.transactions[0].item_list.shipping_address
         shipping_address.phone = payment.payer.payer_info.phone
         #payer = payment.payer
-        #ammount = payment.transactions[0].ammount
-        
+        payment_state = payment.transactions[0].related_resources[0].sale.state 
         # admin only
         form = None
         if current_user.is_authenticated and current_user.user_role == 'admin':
@@ -128,11 +127,11 @@ def order_detail(id, u_id):
                 except:
                     flash('You can\'t do this right now.')
                 
-                return render_template('customer/order.html', order=order, shipping_address=shipping_address, form=form, title="Order Details")
+                return render_template('customer/order.html', order=order, payment_state=payment_state,eshipping_address=shipping_address, form=form, title="Order Details")
 
             form.status.data = order.status 
 
-        return render_template('customer/order.html', order=order, shipping_address=shipping_address, form=form, title="Order Details")
+        return render_template('customer/order.html', order=order, payment_state=payment_state, shipping_address=shipping_address, form=form, title="Order Details")
 
     except ResourceNotFound as error:
         # It will through ResourceNotFound exception if the payment not found

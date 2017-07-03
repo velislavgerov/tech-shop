@@ -1,6 +1,6 @@
 from flask import request, jsonify, abort, flash, render_template, request, url_for, redirect, session
 from flask_login import current_user, login_required
-from paypalrestsdk import Payment, WebProfile, ResourceNotFound
+from paypalrestsdk import Payment, WebProfile, Sale, ResourceNotFound
 
 from . import payment
 
@@ -264,3 +264,37 @@ def detail(id):
         flash("Payment Not Found")
         return redirect(url_for('shop.index')) 
 
+@payment.route('/payment/refund/<string:id>')
+@login_required
+def refund(id):
+    """
+    Refund a paypal identified by paymentID
+    """
+    if current_user.user_role != 'admin':
+        abort(403)
+    # only admin can refund
+    try:
+        payment = Payment.find(id)
+    except ResourceNotFound:
+        flash("Payment Not Found")
+        return redirect(url_for('admin.list_orders'))
+
+    sale_id = payment.transactions[0].related_resources[0].sale.id
+    print(payment)
+    # doing complete refund
+    sale_amount = {
+            'amount': {
+                'currency': payment.transactions[0].related_resources[0].sale.amount.currency,
+                'total': payment.transactions[0].related_resources[0].sale.amount.total }
+            }
+    #del sale_amount['amount']['details']
+    print(sale_amount)
+    sale = Sale.find(sale_id)
+    refund = sale.refund(sale_amount) # refund full ammount
+    
+    if refund.success():
+        flash("Refund[%s] Success" % (refund.id))
+    else:
+        flash("Unable to refund")
+        flash(refund.error)
+    return redirect(url_for('admin.list_orders'))

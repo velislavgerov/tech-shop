@@ -15,23 +15,26 @@
   <div class="row">
   <div class="col-md-6">
     <dl class="row">
-    <dt class="col-sm-3">Order ID</dt>
-    <dd class="col-sm-9">{{order.id}}</dd>
+    <dt class="col-sm-4">Order ID</dt>
+    <dd class="col-sm-8">{{order.id}}</dd>
 
-    <dt class="col-sm-3">Order created</dt>
-    <dd class="col-sm-9">{{ order.created_at.strftime('%d-%m-%Y %H:%M') }} </dd>
+    <dt class="col-sm-4">Order created</dt>
+    <dd class="col-sm-8">{{ order.created_at.strftime('%d-%m-%Y %H:%M') }} </dd>
 
-    <dt class="col-sm-3">Order last updated</dt>
-    <dd class="col-sm-9">{{ order.updated_at.strftime('%d-%m-%Y %H:%M') }} </dd>
+    <dt class="col-sm-4">Order last updated</dt>
+    <dd class="col-sm-8">{{ order.updated_at.strftime('%d-%m-%Y %H:%M') }} </dd>
     
-    <dt class="col-sm-3">Payment type</dt>
-    <dd class="col-sm-9">PayPal</dd>
+    <dt class="col-sm-4">Payment type</dt>
+    <dd class="col-sm-8">PayPal</dd>
 
-    <dt class="col-sm-3">Payment ID</dt>
-    <dd class="col-sm-9">{{order.payment_id}}</dd>
-    
-    <dt class="col-sm-3">Status</dt>
-    <dd class="col-sm-9"><div class="alert alert-{% if order.status.name == 'Completed' %}success{% elif order.status.name == 'Failed' or order.status.name == 'Cancelled' %}danger{% else %}warning{% endif %}" role="alert"><strong>{{order.status.name}}</strong> ({{order.status.description}})<div></dd>
+    <dt class="col-sm-4">Payment ID</dt>
+    <dd class="col-sm-8">{{order.payment_id}}</dd>
+   
+    <dt class="col-sm-4">Payment state</dt>
+    <dd class="col-sm-8">{{payment_state}}</dd>
+
+    <dt class="col-sm-4">Status</dt>
+    <dd class="col-sm-8"><div class="alert alert-{% if order.status.name == 'Completed' %}success{% elif order.status.name == 'Failed' or order.status.name == 'Cancelled' %}danger{% else %}warning{% endif %}" role="alert"><strong>{{order.status.name}}</strong> ({{order.status.description}})<div></dd>
 
   </dl>
   </br>
@@ -39,30 +42,30 @@
   <div class="col-md-6">
   <div class="order-shipping-address">
   <dl class="row">
-    <dt class="col-sm-3">Recipient name</dt>
-    <dd class="col-sm-9">{{shipping_address.recipient_name}}</dd>
+    <dt class="col-sm-4">Recipient name</dt>
+    <dd class="col-sm-8">{{shipping_address.recipient_name}}</dd>
 
-    <dt class="col-sm-3">Address line 1</dt>
-    <dd class="col-sm-9">{{shipping_address.line1}} </dd>
+    <dt class="col-sm-4">Address line 1</dt>
+    <dd class="col-sm-8">{{shipping_address.line1}} </dd>
 
-    <dt class="col-sm-3">Address line 2</dt>
-    <dd class="col-sm-9">{{shipping_address.line2 or '-'}} </dd>
+    <dt class="col-sm-4">Address line 2</dt>
+    <dd class="col-sm-8">{{shipping_address.line2 or '-'}} </dd>
 
 
-    <dt class="col-sm-3">City</dt>
-    <dd class="col-sm-9">{{shipping_address.city}}</dd>
+    <dt class="col-sm-4">City</dt>
+    <dd class="col-sm-8">{{shipping_address.city}}</dd>
     
-    <dt class="col-sm-3">State</dt>
-    <dd class="col-sm-9">{{shipping_address.state}}</dd>
+    <dt class="col-sm-4">State</dt>
+    <dd class="col-sm-8">{{shipping_address.state}}</dd>
 
-    <dt class="col-sm-3">Phone</dt>
-    <dd class="col-sm-9">{{shipping_address.phone}}</dd>
+    <dt class="col-sm-4">Phone</dt>
+    <dd class="col-sm-8">{{shipping_address.phone}}</dd>
     
-    <dt class="col-sm-3">Poscode</dt>
-    <dd class="col-sm-9">{{shipping_address.postal_code}}</dd>
+    <dt class="col-sm-4">Poscode</dt>
+    <dd class="col-sm-8">{{shipping_address.postal_code}}</dd>
     
-    <dt class="col-sm-3">Country</dt>
-    <dd class="col-sm-9">{{shipping_address.country_code}}</dd>
+    <dt class="col-sm-4">Country</dt>
+    <dd class="col-sm-8">{{shipping_address.country_code}}</dd>
 
   </dl>
   </br>
@@ -94,8 +97,13 @@
     {% if current_user.is_authenticated and current_user.user_role=='customer'%}
     <a style="align:center;" href="{{ url_for('customer.orders') }}" class="btn btn-default btn-lg">
             <i class="fa fa-truck"></i>
-            Back to Orders
+            Back to orders
     </a>
+    <a style="align:center;" href="{{ url_for('customer.orders') }}" class="btn btn-default btn-lg">
+            <i class="fa fa-eur"></i>
+            Cancell order
+    </a>
+
     {% elif current_user.is_authenticated and current_user.user_role=='admin'%}
         {{ wtf.quick_form(form) }}
     {% endif %}
