@@ -110,6 +110,7 @@ def order_detail(id, u_id):
         payment = Payment.find(order.payment_id)
         print("Got Payment Details for Payment[%s]" % (payment.id))
         #items = payment.transactions[0].item_list.items
+        shipping_address = None
         shipping_address = payment.transactions[0].item_list.shipping_address
         shipping_address.phone = payment.payer.payer_info.phone
         #payer = payment.payer
@@ -127,7 +128,7 @@ def order_detail(id, u_id):
                 except:
                     flash('You can\'t do this right now.')
                 
-                return render_template('customer/order.html', order=order, payment_state=payment_state,eshipping_address=shipping_address, form=form, title="Order Details")
+                return render_template('customer/order.html', order=order, payment_state=payment_state,shipping_address=shipping_address, form=form, title="Order Details")
 
             form.status.data = order.status 
 

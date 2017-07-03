@@ -35,5 +35,9 @@ def create_app(config_name):
     from .payment import payment as payment_blueprint
     app.register_blueprint(payment_blueprint)
 
+    from .order import order as order_blueprint
+    app.register_blueprint(order_blueprint)
+
+
 
     return app

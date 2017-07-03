@@ -124,6 +124,7 @@ class Order(db.Model):
     status_id = db.Column(db.Integer, db.ForeignKey('order_statuses.id'))
     payment_id = db.Column(db.Text, unique=True, nullable=False)
     payment_token = db.Column(db.Text)
+    #sale_id = db.Column(db.Text, unique=True)
     total_ammount = db.Column(db.Numeric(10,2), nullable=False)
     created_at = db.Column(db.DateTime(), nullable=False)
     updated_at = db.Column(db.DateTime(), nullable=False)
