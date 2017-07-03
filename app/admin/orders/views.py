@@ -7,6 +7,8 @@ from ... import db
 from ...models import Order, OrderStatus, OrderItem
 from .forms import StatusForm
 
+from datetime import datetime
+
 def check_admin():
     """
     Prevent non-admins from accessing the page
@@ -55,35 +57,41 @@ def refund_order(id):
     except ResourceNotFound:
         flash("Payment Not Found")
         return redirect(url_for('admin.list_orders'))
+    except ServerError:
+        flash("There was a problem with PayPal. Please try again later.")
+        return redirect(url_for('admin.list_orders'))
 
     sale_id = payment.transactions[0].related_resources[0].sale.id
-    print(payment)
-    # doing complete refund
+    # refund full ammount
     sale_amount = {
             'amount': {
                 'currency': payment.transactions[0].related_resources[0].sale.amount.currency,
                 'total': payment.transactions[0].related_resources[0].sale.amount.total }
             }
-    print(sale_amount)
+    status = OrderStatus.query.filter_by(name='Refunded').first()
+    order.status_id = status.id
+    order.cancelled = True
+    order.updated_at = datetime.utcnow()
+    order_items = OrderItem.query.filter_by(order_id=order.id).all()
+    product_items = []
+    try:
+        for item in order_items:
+            product = item.product
+            product.quantity += item.quantity
+            db.session.merge(item)
+        db.session.merge(order)
+        db.session.commit()
+    except:
+        flash('Items counld not be returned to inventory')
+
+
+
     sale = Sale.find(sale_id)
     refund = sale.refund(sale_amount) # refund full ammount
     
     if refund.success():
         flash("Refund[%s] Success" % (refund.id))
-        status = OrderStatus.query.filter_by(name='Refunded').first()
-        order.status_id = status.id
-        # release items
-        order_items = OrderItem.query.filter_by(order_id=order.id).all()
-        product_items = []
-        try:
-            for item in order_items:
-                product = item.product
-                product.quantity += item.quantity
-                db.session.merge(item)
-            db.session.merge(order)
-            db.session.commit()
-        except:
-            flash('Items counld not be returned to inventory')
+        # XXX: this can fail at any point below. Not good, as refund is registed
     else:
         flash("Unable to refund")
         flash(refund.error)

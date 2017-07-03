@@ -1,6 +1,9 @@
 from flask import flash, redirect, render_template, url_for
 from flask_login import login_required, login_user, logout_user, current_user
-from paypalrestsdk import Payment, ResourceNotFound
+from paypalrestsdk import Payment
+from paypalrestsdk.exceptions import ServerError, ResourceNotFound
+from sqlalchemy.exc import IntegrityError
+
 
 
 from . import customer
@@ -144,6 +147,26 @@ def order_detail(id, u_id):
         flash('There was a problem with contacting PayPal. Please try again later')
         return redirect(url_for('shop.index'))
 
+@customer.route('/orders/cancel/<int:id>', methods=['GET', 'POST'])
+@login_required
+def cancel_order(id):
+    """
+    Issues a cancel on order
+    """
+    order = Order.query.filter_by(id=id, user_id=current_user.id).first()
+    if not order:
+        flash('Order not found.')
+        return redirect(url_for('shop.index'))
+    order.cancelled = True
+    order.updated = datetime.utcnow()
+    try:
+        db.session.merge(order)
+        db.session.commit()
+        flash("Your request was successful.")
+    except:
+        flash("You can't do this right now.")
+    
+    return redirect(url_for('shop.index'))
 
 
 @customer.route('/login', methods=['GET', 'POST'])

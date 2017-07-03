@@ -95,16 +95,27 @@
     </div>
     </div>
     {% if current_user.is_authenticated and current_user.user_role=='customer'%}
+    {% if not order.cancelled %}
+    <a style="align:center;" href="{{ url_for('customer.cancel_order', id=order.id) }}" class="btn btn-default btn-lg">
+            <i class="fa fa-euro"></i>
+            Cancel order
+    </a>
+    {% else %}
+    <div class="alert alert-warning" role="alert">
+            <strong>Warning!</strong>You have submitted a request to cancel this order.</a>.
+    </div>
+    {% endif %}
+
     <a style="align:center;" href="{{ url_for('customer.orders') }}" class="btn btn-default btn-lg">
             <i class="fa fa-truck"></i>
             Back to orders
     </a>
-    <a style="align:center;" href="{{ url_for('customer.orders') }}" class="btn btn-default btn-lg">
-            <i class="fa fa-euro"></i>
-            Cancell order
-    </a>
-
     {% elif current_user.is_authenticated and current_user.user_role=='admin'%}
+        {% if order.cancelled %}
+        <div class="alert alert-warning" role="alert">
+            <strong>Warning!</strong>The customer has submitted a request to cancel this order.</a>.
+        </div>
+        {% endif %}
         <a style="align:center;" href="{{ url_for('admin.refund_order', id=order.id) }}" class="btn btn-default btn-lg">
             <i class="fa fa-university"></i>
             Refund
