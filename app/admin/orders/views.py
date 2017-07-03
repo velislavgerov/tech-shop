@@ -1,6 +1,7 @@
 from flask import flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
 from paypalrestsdk import Payment, Sale, ResourceNotFound
+from sqlalchemy import desc
 
 from .. import admin
 from ... import db
@@ -24,7 +25,7 @@ def list_orders():
     """
     check_admin()
 
-    orders = Order.query.all()
+    orders = Order.query.order_by(desc(Order.updated_at)).all()
 
     return render_template('admin/orders/orders.html', orders=orders, title="Orders")
 
