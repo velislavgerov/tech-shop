@@ -93,7 +93,7 @@ def refund_order(id):
     refund = sale.refund(sale_amount) # refund full ammount
     
     if refund.success():
-        flash("Refund[%s] Success" % (refund.id))
+        flash("Refund [%s] Success" % (refund.id), 'info')
         status = OrderStatus.query.filter_by(name='Refunded').first()
         order.status_id = status.id
         order.cancelled = True

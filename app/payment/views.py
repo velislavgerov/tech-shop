@@ -124,7 +124,14 @@ def execute():
     """
     paymentID = request.form['paymentID']
     payerID = request.form['payerID']
-    payment = Payment.find(paymentID)
+    try:
+        payment = Payment.find(paymentID)
+    except ResourceNotFound:
+        flash('Invalid payment ID', 'warning')
+        response = jsonify(redirect_url=url_for('shop.index'))
+        response.status_code = 302
+        return response   
+
 
     if payment.execute({"payer_id" : payerID}):  # return True or False
         print("Payment[%s] execute successfully" % (payment.id))
@@ -141,6 +148,7 @@ def execute():
                 db.session.add(guest)
                 db.session.flush()
                 u_id = guest.id
+                session['guest'] = guest.id
             except:
                 raise #TODO ErrorHandling
         else:

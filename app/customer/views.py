@@ -1,8 +1,9 @@
-from flask import flash, redirect, render_template, url_for
+from flask import flash, redirect, render_template, url_for, session
 from flask_login import login_required, login_user, logout_user, current_user
 from paypalrestsdk import Payment
 from paypalrestsdk.exceptions import ServerError, ResourceNotFound
 from sqlalchemy.exc import IntegrityError
+from werkzeug.security import generate_password_hash
 
 
 from ..helpers import redirect_url
@@ -42,6 +43,42 @@ def register():
 
     # load registration template
     return render_template('customer/register.html', form=form, title='Register')
+
+@customer.route('/register/guest', methods=['GET', 'POST'])
+def register_guest():
+    """
+    Handle requests to the /register_guest route
+    registers a guest account after an order has been made
+    """
+
+    if session['guest']:
+        user = User.query.filter_by(id=session['guest']).first()
+        if user:
+            user.is_registered=True
+            form = RegistrationForm()
+            if form.validate_on_submit():
+                user.email = form.email.data
+                user.username = form.username.data
+                user.first_name = form.first_name.data
+                user.last_name = form.last_name.data
+                user.password = form.password.data
+                user.user_role = 'customer'
+                user.is_registered=True
+                try:
+                    db.session.merge(user)
+                    db.session.commit()
+                except:
+                    flash('Sorry, you can\'t register right now. Please contact support', 'warning')
+                    return redirect(url_for('shop.index'))
+                flash('You have registered successfully. You may now login', 'info')
+                return redirect(url_for('customer.login'))
+            
+            form.username.data = user.username
+            return render_template('customer/register.html', form=form, title='Guest Register')
+ 
+    flash('Something went wrong!', 'danger')
+    return redirect(url_for('shop.index'))
+
 
 @customer.route('/account', methods=['GET','POST'])
 @login_required
