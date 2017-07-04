@@ -5,7 +5,7 @@ from paypalrestsdk.exceptions import ServerError, ResourceNotFound
 from sqlalchemy.exc import IntegrityError
 
 
-
+from ..helpers import redirect_url
 from . import customer
 from ..admin.orders.forms import StatusForm
 from .forms import LoginForm, RegistrationForm, AccountForm
@@ -35,7 +35,7 @@ def register():
         # add user to the database
         db.session.add(user)
         db.session.commit()
-        flash('You have successfully registered! You may now login.')
+        flash('You have successfully registered! You may now login.', 'info')
 
         # redirect to the login page
         return redirect(url_for('customer.login'))
@@ -52,19 +52,26 @@ def account():
     form = AccountForm()
     if form.validate_on_submit():
         user = User.query.filter_by(id=current_user.id).first()
-        if not custommer:
-            # Unexpected error
-            pass 
-        user.username = form.username.data
-        user.email = form.email.data
-        try:
-            db.session.merge(user)
-            db.session.commit()
-            flash('You have succesfully updated your details.')
-        except:
-            raise
-            flash('There was a problem with our database. Please, try again later.')
-   
+        if user is not None and user.verify_password(
+                form.password.data):
+            user.username = form.username.data
+            user.email = form.email.data
+            if form.new_password.data:
+                user.password=form.new_password.data
+            try:
+                db.session.merge(user)
+                db.session.commit()
+                flash('You have succesfully updated your details.', 'info')
+            except:
+                raise
+                flash('There was a problem with our database. Please, try again later.', 'warning')
+        else:
+            flash('Invalid password', 'warning')
+            return redirect(redirect_url())
+        if not user:
+            flash('Could not find this user', 'danger')
+            return redirect(redirect_url())
+          
     form.username.data = current_user.username
     form.email.data = current_user.email
     form.first_name.data = current_user.first_name
@@ -100,7 +107,7 @@ def order_detail(id, u_id):
         or (current_user.is_authenticated and order.user.id != current_user.id\
         and not current_user.user_role == 'admin')\
         or (not current_user.is_authenticated and order.user.is_registered):
-        flash('Order not found.')
+        flash('Order not found.', 'warning')
         if current_user.is_authenticated:
             return redirect(url_for('customer.orders'))
         else:
@@ -160,16 +167,16 @@ def cancel_order(id):
     """
     order = Order.query.filter_by(id=id, user_id=current_user.id).first()
     if not order:
-        flash('Order not found.')
+        flash('Order not found.', 'warning')
         return redirect(url_for('shop.index'))
     order.cancelled = True
     order.updated = datetime.utcnow()
     try:
         db.session.merge(order)
         db.session.commit()
-        flash("Your request was successful.")
+        flash("Your request was successful.", 'info')
     except:
-        flash("You can't do this right now.")
+        flash("You can't do this right now.", 'warning')
     
     return redirect(url_for('shop.index'))
 
@@ -193,7 +200,7 @@ def login():
                 return redirect(url_for('shop.index')) 
         # when login details are incorrect
         else:
-            flash('Invalid email or password.')
+            flash('Invalid email or password.', 'warning')
     # load login template
     return render_template('customer/login.html', form=form, titile='Login')
 
@@ -204,7 +211,7 @@ def logout():
     Log a user out thorugh the logout link
     """
     logout_user()
-    flash('You have successfully been logged out.')
+    flash('You have successfully been logged out.', 'info')
 
     # redirect to the login page
     return redirect(url_for('customer.login'))

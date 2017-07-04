@@ -45,8 +45,11 @@ class LoginForm(FlaskForm):
 class AccountForm(FlaskForm):
     """Form for users to edit their account."""
 
-    username = StringField('Username', validators=[DataRequired()])
-    email = StringField('Email', validators=[DataRequired(), Email()])
     first_name = StringField('First name', render_kw={'readonly': True})
     last_name = StringField('Last name', render_kw={'readonly': True}) 
+    username = StringField('Username', validators=[DataRequired()])
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    new_password = PasswordField('New password', validators=[EqualTo('confirm_new_password')])
+    confirm_new_password = PasswordField('Confirm new password')
+    password = PasswordField('Password', validators=[DataRequired()])
     submit = SubmitField('Update')
