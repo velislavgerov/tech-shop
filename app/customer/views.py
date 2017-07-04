@@ -105,7 +105,9 @@ def order_detail(id, u_id):
             return redirect(url_for('customer.orders'))
         else:
             return redirect(url_for('shop.index'))
-    
+    payment = None
+    payment_state = None
+    shipping_address = None
     try:
         # Retrieve the payment object by calling the
         # `find` method
@@ -114,41 +116,41 @@ def order_detail(id, u_id):
         print("Got Payment Details for Payment[%s]" % (payment.id))
         #items = payment.transactions[0].item_list.items
         print(payment)
+    except ResourceNotFound as error:
+        # It will through ResourceNotFound exception if the payment not found
+        # Hm?
+        flash("Payment Not Found", 'danger')
+    except ConnectionError as error:
+        flash('There was a problem with contacting PayPal. Please try again later', 'warning')
+        return redirect(url_for('shop.index'))
+
+
+    if payment:
         shipping_address = payment.transactions[0].item_list.shipping_address or None
         if shipping_address: shipping_address.phone = payment.payer.payer_info.phone
-        #payer = payment.payer
+    
         try:
             payment_state = payment.transactions[0].related_resources[0].sale.state
         except IndexError:
             payment_state = payment.state
-        # admin only
-        form = None
-        if current_user.is_authenticated and current_user.user_role == 'admin':
-            form = StatusForm()
-            if form.validate_on_submit():
-                order.status = form.status.data
-                order.updated_at = datetime.utcnow()
-                try:
-                    db.session.merge(order)
-                    db.session.commit()
-                except:
-                    flash('You can\'t do this right now.')
-                
-                return render_template('customer/order.html', order=order, payment_state=payment_state,shipping_address=shipping_address, form=form, title="Order Details")
-
-            form.status.data = order.status 
-
-        return render_template('customer/order.html', order=order, payment_state=payment_state, shipping_address=shipping_address, form=form, title="Order Details")
-
-    except ResourceNotFound as error:
-        # It will through ResourceNotFound exception if the payment not found
-        # Hm?
-        flash("Payment Not Found")
-        return redirect(url_for('shop.index'))
     
-    except ConnectionError as error:
-        flash('There was a problem with contacting PayPal. Please try again later')
-        return redirect(url_for('shop.index'))
+    form = None
+    if current_user.is_authenticated and current_user.user_role == 'admin':
+        form = StatusForm()
+        if form.validate_on_submit():
+            order.status = form.status.data
+            order.updated_at = datetime.utcnow()
+            try:
+                db.session.merge(order)
+                db.session.commit()
+            except:
+                flash('You can\'t do this right now.', 'warning')
+            
+            return render_template('customer/order.html', order=order, payment_state=payment_state,shipping_address=shipping_address, form=form, title="Order Details")
+
+        form.status.data = order.status 
+
+    return render_template('customer/order.html', order=order, payment_state=payment_state, shipping_address=shipping_address, form=form, title="Order Details")
 
 @customer.route('/orders/cancel/<int:id>', methods=['GET', 'POST'])
 @login_required
