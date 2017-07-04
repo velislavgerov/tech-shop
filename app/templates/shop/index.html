@@ -1,13 +1,7 @@
-{% import "bootstrap/utils.html" as utils %}
 {% extends "base.html" %}
 {% block title %}Home{% endblock %}
 {% block body %} 
-        <div class="row">
-            <div class="col-lg-12">
-                <br/>
-                {{ utils.flashed_messages() }}
-                <br/>
-                            </div> 
+        <div class="row"> 
             <div class="col-lg-3">
                 <form class="input-group" action="/" method="GET">
                     <input type="text" class="form-control" name="search" placeholder="Search for...">

@@ -46,9 +46,9 @@ def add_to_cart(id):
     def do_work(item):
         product = Product.query.filter_by(id=item.product_id).first()
         if product.quantity <= 0:
-            flash('This item is currently unavailable.')
+            flash('This item is currently unavailable.', 'warning')
         if item.quantity + 1 > product.quantity:
-            flash('You can not add more from this product.')
+            flash('You can not add more from this product.', 'warning')
         else:
             item.quantity += 1
             if current_user.is_authenticated:
@@ -56,7 +56,7 @@ def add_to_cart(id):
                 db.session.commit()
             else:
                 session['cart'][str(product.id)] += 1
-            flash('Cart item updated.')
+            flash('Cart item updated.', 'info')
     
     def not_found():
         if current_user.is_authenticated:
@@ -64,12 +64,12 @@ def add_to_cart(id):
             try:
                 db.session.add(item)
                 db.session.commit()
-                flash('Item added to cart.')
+                flash('Item added to cart.', 'info')
             except IntegrityError:
-                flash('Invalid item.')
+                flash('Invalid item.', 'warning')
             except:
                 raise
-                flash('Sorry, you can\'t do that right now.')
+                flash('Sorry, you can\'t do that right now.', 'warning')
         else:
             try:
                 cart = session['cart']
@@ -95,9 +95,9 @@ def remove_cart_item(id):
             else:
                 del session['cart'][str(id)]
 
-            flash('Item removed from cart.')
+            flash('Item removed from cart.', 'info')
         except:
-            flash('Sorry, you can\'t do that at the moment.')
+            flash('Sorry, you can\'t do that at the moment.', 'warning')
     
     handle_item(id, do_work)
     
@@ -116,7 +116,7 @@ def remove_one_cart_item(id):
                 db.session.commit()
             else:
                 session['cart'][str(id)] -= 1
-            flash('Cart item updated.')
+            flash('Cart item updated.', 'info')
         elif item.quantity == 1:
             if current_user.is_authenticated:
                 db.session.delete(item)
@@ -139,10 +139,10 @@ def empty_cart():
         else:
             session['cart'] = {}
         db.session.commit()
-        flash('You have emptied your cart.')
+        flash('You have emptied your cart.', 'info')
     except:
         raise
-        flash('Sorry, you can\'t do that at the moment.')
+        flash('Sorry, you can\'t do that at the moment.', 'warning')
     
     return redirect(url_for('shop.cart'))
 
@@ -167,7 +167,7 @@ def handle_item(id, do_work, not_found=None):
         do_work(item)
     else:
         if not not_found:
-            flash('Item not found in your cart.')
+            flash('Item not found in your cart.', 'warning')
         else:
             not_found() 
 

@@ -1,4 +1,3 @@
-{% import "bootstrap/utils.html" as utils %}
 {% extends "base.html" %}
 {% block title %}Shopping Cart{% endblock %}
 {% block body %}
@@ -6,9 +5,6 @@
   <div class="outer">
     <div class="middle">
       <div class="inner">
-        <br/>
-        {{ utils.flashed_messages() }}
-        <br/>
         <h1 style="text-align:center;">Shopping Cart</h1>
         {% if products %}
             </br>

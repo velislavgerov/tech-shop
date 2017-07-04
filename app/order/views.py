@@ -42,7 +42,7 @@ def order_detail(id, u_id):
         or (current_user.is_authenticated and order.user.id != current_user.id\
         and not current_user.user_role == 'admin')\
         or (not current_user.is_authenticated and order.user.is_registered):
-        flash('Order not found.')
+        flash('Order not found.', 'info')
         if current_user.is_authenticated:
             return redirect(url_for('customer.orders'))
         else:
@@ -70,7 +70,7 @@ def order_detail(id, u_id):
                     db.session.merge(order)
                     db.session.commit()
                 except:
-                    flash('You can\'t do this right now.')
+                    flash('You can\'t do this right now.', 'warning')
                 
                 return render_template('customer/order.html', order=order, payment_state=payment_state,eshipping_address=shipping_address, form=form, title="Order Details")
 
@@ -81,11 +81,11 @@ def order_detail(id, u_id):
     except ResourceNotFound as error:
         # It will through ResourceNotFound exception if the payment not found
         # Hm?
-        flash("Payment Not Found")
+        flash("Payment Not Found", 'danger')
         return redirect(url_for('shop.index'))
     
     except ConnectionError as error:
-        flash('There was a problem with contacting PayPal. Please try again later')
+        flash('There was a problem with contacting PayPal. Please try again later', 'warning')
         return redirect(url_for('shop.index'))
 
 

@@ -3,24 +3,13 @@ from flask_login import current_user, login_required
 from paypalrestsdk import Payment, Sale, ResourceNotFound
 from sqlalchemy import desc
 
+from ...helpers import check_admin, redirect_url
 from .. import admin
 from ... import db
 from ...models import Order, OrderStatus, OrderItem
 from .forms import StatusForm
 
 from datetime import datetime
-
-def check_admin():
-    """
-    Prevent non-admins from accessing the page
-    """
-    if not current_user.user_role == 'admin':
-        abort(403)
-
-def redirect_url(default='shop.index'):
-    return request.args.get('next') or \
-           request.referrer or \
-           url_for(default)
            
 @admin.route('/orders', methods=['GET','POST'])
 @login_required
