@@ -44,7 +44,7 @@ def create():
     """
     Create paypal payment
     """
-    total = None
+    total = 0
     products = None
     items = []
     if current_user.is_authenticated:
@@ -52,15 +52,33 @@ def create():
         quantities = {x.product_id: x.quantity for x in cart_items}
         products = Product.query.filter(Product.id.in_(list(quantities.keys()))).all() #POF
         if products:
+            for x in products:
+                wanted_quantity = quantities[x.id]
+                if x.quantity - wanted_quantity < 0:
+                    flash("One of the products in your order has become unavailable!", "danger")
+                    response = jsonify(redirect_url=url_for('shop.cart'))
+                    response.status_code = 302
+                    return response
+                total += x.price*wanted_quantity
+
             total = sum([x.price*quantities[x.id] for x in products])
+        #ELSE?
     else:
         # Generate PayPal transactions data from the guest cart
         # Specifically, we currently use items and ammount
         cart_items = session['cart'] # POF
         products = Product.query.filter(Product.id.in_(list(cart_items.keys()))).all() #POF
         if products:
-            total = sum([x.price*cart_items[str(x.id)] for x in products])
-    
+            for x in products:
+                wanted_quantity = cart_items[str(x.id)]
+                if x.quantity - wanted_quantity < 0:
+                    flash("One of the products in your order has become unavailable!", "danger")
+                    response = jsonify(redirect_url=url_for('shop.cart'))
+                    response.status_code = 302
+                    return response
+                total += x.price*wanted_quantity
+            # total = sum([x.price*cart_items[str(x.id)] for x in products])
+        #ELSE?
     # prepare sale ammount
     ammount = {
             "total": str(total),
