@@ -65,10 +65,10 @@ def add_product():
             db.session.add(product)
             db.session.commit()
             # XXX: raw save might not be a good idea! (overwrite?)
-            flash('You have successfully added a new product')
+            flash('You have successfully added a new product', 'info')
         except IntegrityError: # relies on unique name in the database!
             raise
-            flash('Error: product name already exists.')
+            flash('Error: product name already exists.', 'warning')
         except:
             raise # XXX: app will fail if we can't save the image
         
@@ -107,7 +107,7 @@ def edit_product(id):
         product.updated_by=current_user.email,
         product.updated_at=datetime.utcnow()
         db.session.commit()
-        flash('You have successfully edited the product.')
+        flash('You have successfully edited the product.', 'info')
 
         # redirect to the departments page
         return redirect(url_for('admin.list_products'))
@@ -139,7 +139,7 @@ def delete_product(id):
     except:
         pass #XXX: We should know about this
 
-    flash('You have successfully deleted the product.')
+    flash('You have successfully deleted the product.', 'info')
 
     # redirect to the products page
     return redirect(url_for('admin.list_products'))
