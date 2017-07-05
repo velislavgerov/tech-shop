@@ -7,6 +7,8 @@ from .. import shop
 from ... import db
 from ...models import Cart, Product
 
+from decimal import Decimal
+
 def guest_cart():
     try:
         return session['cart']
@@ -35,7 +37,7 @@ def cart():
         if x.quantity == 0:
             flash('One of the items you are trying to order has become unavailable', 'warning')
             x.quantity = 0
-            x.price = 0.
+            x.price = Decimal(0.)
         elif x.quantity - q < 0:
             flash('You order quantity for item {} has been reduced due to decreased availability'.format(x.name), 'warning')
             x.price = x.quantity*x.price
