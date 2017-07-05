@@ -112,7 +112,7 @@ def create():
         print(payment.error)
         #TODO ErrorHandling: Specific -> General 
         flash(payment.error['message'], 'warning')
-        response = jsonify(redirect_url=url_for('shop.index'))
+        response = jsonify(redirect_url=url_for('shop.cart'))
         response.status_code = 302
         return response
 
@@ -128,7 +128,7 @@ def execute():
         payment = Payment.find(paymentID)
     except ResourceNotFound:
         flash('Invalid payment ID', 'warning')
-        response = jsonify(redirect_url=url_for('shop.index'))
+        response = jsonify(redirect_url=url_for('shop.cart'))
         response.status_code = 302
         return response   
 
@@ -173,7 +173,7 @@ def execute():
             db.session.flush()
         except:
             flash('Could not connect to database. Please, try again later', 'warning')
-            response = jsonify(redirect_url=url_for('shop.index'))
+            response = jsonify(redirect_url=url_for('shop.cart'))
             response.status_code = 302
             return response   
         
@@ -190,10 +190,17 @@ def execute():
             # decrese product count
             product = Product.query.filter_by(id=item.sku).first()
             if not product:
-                return('', 500) #TODO: Change all of these
+                flash('Sorry, we can\'t find the product you are trying to order!', 'danger')
+                response = jsonify(redirect_url=url_for('shop.cart'))
+                response.status_code = 302
+                return response
             product.quantity -= item.quantity
             if product.quantity < 0:
-                return('', 500)
+                flash('One of the products you are trying to order is no longer available!', 'danger')
+                response = jsonify(redirect_url=url_for('shop.cart'))
+                response.status_code = 302
+                return response
+
             product_updates.append(product)
         try:
             # update order
@@ -216,7 +223,7 @@ def execute():
         except:
             raise #TODO: ErrorHandling
             flash("You can't do this right now. Please, try again later", 'warning')
-            response = jsonify(redirect_url=url_for('shop.index'))
+            response = jsonify(redirect_url=url_for('shop.cart'))
             response.status_code = 302
             return response
         response = jsonify(redirect_url=url_for('customer.order_detail', id=order.id, u_id=order.user_id))
@@ -228,7 +235,7 @@ def execute():
         print(payment.error)
         flash(payment.error['message'], 'warning')
         #TODO: Error Handling
-        response = jsonify(redirect_url=url_for('shop.index'))
+        response = jsonify(redirect_url=url_for('shop.cart'))
         response.status_code = 302
         return response
 
@@ -262,7 +269,7 @@ def detail(id):
     except ResourceNotFound as error:
         # It will through ResourceNotFound exception if the payment not found
         flash("Payment Not Found", 'danger')
-        return redirect(url_for('shop.index')) 
+        return redirect(url_for('shop.cart')) 
 
 @payment.route('/payment/refund/<string:id>')
 @login_required
