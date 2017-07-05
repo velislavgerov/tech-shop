@@ -77,14 +77,14 @@
           <td width="25%"><img src="{{ url_for('static', filename='uploads/' + item.product.main_image) if item.product.main_image }}" style="max-width:100%" alt="{{ item.product.name }} Main Image"></td>
           <td width="25%">{{ item.product.name }}</td>
           <td width="25%">{{ item.quantity }}</td>
-          <td width="25%">{{ item.price*item.quantity }}&#x20AC; ({{ item.price  }}&#x20AC; per item)</td>
+          <td width="25%">&#x20AC; {{ item.price*item.quantity }}(&#x20AC; {{ item.price  }} per item)</td>
         </tr>
         {% endfor %}
         <tr>
           <td></td>
           <td></td>
           <td>Subtotal:</td>
-          <td>{{ order.total_ammount }}&#x20AC;</td>
+          <td>&#x20AC; {{ order.total_ammount }}</td>
         </tr>
       </tbody>
     </table>
