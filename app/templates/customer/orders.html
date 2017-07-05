@@ -32,7 +32,7 @@
                   <td> {{ order.id }} </td>
                   <td> {{ order.created_at.strftime('%d-%m-%Y %H:%M') }} </td>
                   <td> {{order.total_ammount}} </td>
-                  <td> <div class="alert alert-{% if order.status.name == 'Completed' %}success{% elif order.status.name == 'Failed' or order.status.name == 'Cancelled' %}danger{% else %}warning{% endif %}" role="alert">{{order.status.name}}<div></td>
+                  <td> <div class="alert alert-{% if order.status.name == 'Completed' %}success{% elif order.status.name == 'Failed' or order.status.name == 'Cancelled' %}danger{% elif order.status.name == 'Refunded' %}info{% else %}warning{% endif %}" role="alert">{{order.status.name}}<div></td>
                   <td>
                     <a href="{{ url_for('customer.order_detail', id=order.id) }}">
                       <i class="fa fa-info"></i> Details

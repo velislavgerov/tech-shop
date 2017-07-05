@@ -30,7 +30,7 @@
     <dd class="col-sm-8">{{payment_state}}</dd>
 
     <dt class="col-sm-4">Status</dt>
-    <dd class="col-sm-8"><div class="alert alert-{% if order.status.name == 'Completed' %}success{% elif order.status.name == 'Failed' or order.status.name == 'Cancelled' %}danger{% else %}warning{% endif %}" role="alert"><strong>{{order.status.name}}</strong> ({{order.status.description}})<div></dd>
+    <dd class="col-sm-8"><div class="alert alert-{% if order.status.name == 'Completed' %}success{% elif order.status.name == 'Failed' or order.status.name == 'Cancelled' %}danger{% elif order.status.name == 'Refunded' %}info{% else %}warning{% endif %}" role="alert"><strong>{{order.status.name}}</strong> ({{order.status.description}})<div></dd>
 
   </dl>
   </br>
