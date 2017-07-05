@@ -9,14 +9,14 @@
         {% if orders %}
           <hr class="intro-divider">
           <div class="center">
-            <table class="table table-responsive">
+            <table id="orders-table" class="table table-responsive" cellspacing="0" width="100%">
               <thead>
                 <tr>
                   <th> Order ID </th>
                   <th> User </th>
                   <th> Ammount </th>
-                  <th> Created at (UTC) </th>
-                  <th> Last updated at (UTC) </th>
+                  <th> Created at </th>
+                  <th> Last updated at </th>
                   <th> Cancelled </th>
                   <th> Status </th>
                   <th> Details </th>
@@ -27,7 +27,7 @@
               <tr>
                   <td> {{ order.id }} </td>
                   <td> {{ order.user.username }} </td>
-                  <td> {{ order.total_ammount }} </td>
+                  <td align="left">&#x20AC; {{ order.total_ammount }} </td>
                   <td> {{ order.created_at.strftime('%d-%m-%Y %H:%M') }} </td>
                   <td> {{ order.updated_at.strftime('%d-%m-%Y %H:%M') }} </td>
                   <td> {{ 'Yes' if order.cancelled else 'No' }} </td>
@@ -53,4 +53,10 @@
     </div>
   </div>
 </div>
+<script src="https://code.jquery.com/jquery-1.12.4.js" crossorigin="anonymous"></script>
+<script>
+    $(document).ready(function() {
+        $('#orders-table').DataTable();
+    } );
+</script>
 {% endblock %}
