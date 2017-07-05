@@ -21,7 +21,6 @@ def cart():
     """
     List all items in cart
     """
-    # TODO: SHOULD CHECK PRODUCT AVAILABILITY AND FILTER UNAVAILABLE
     if current_user.is_authenticated:
         cart_items = Cart.query.filter_by(user_id=current_user.id).all()
         quantities = {x.product_id: x.quantity for x in cart_items}
@@ -36,12 +35,36 @@ def cart():
         
         if x.quantity == 0:
             flash('One of the items you are trying to order has become unavailable', 'warning')
+            item = Cart.query.filter_by(user_id=current_user.id, product_id=x.id).first()
+            if not item:
+                print('Item has become unavailable??????') # TODO: WHAT?
+            if item.quantity > 0:
+                item.quantity = x.quantity
+                try:
+                    db.session.merge(item)
+                    db.session.commit()
+                except:
+                    raise
+                    # TODO:
+
             x.quantity = 0
             x.price = Decimal(0.)
+            # update cart item
         elif x.quantity - q < 0:
             flash('You order quantity for item {} has been reduced due to decreased availability'.format(x.name), 'warning')
+            item = Cart.query.filter_by(user_id=current_user.id, product_id=x.id).first()
+            item.quantity = x.quantity
+            try:
+                db.session.merge(item)
+                db.session.commit()
+            except:
+                raise
+                # TODO:
+
             x.price = x.quantity*x.price
         else:
+            if q == 0:
+                flash('Item {} has become available. You can now restore your order'.format(x.name), 'info')
             x.quantity = q
             x.price = q*x.price
     total = None

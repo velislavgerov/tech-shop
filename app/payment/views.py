@@ -54,6 +54,9 @@ def create():
         if products:
             for x in products:
                 wanted_quantity = quantities[x.id]
+                if wanted_quantity == 0:
+                    products.remove(x)
+                    break
                 if x.quantity - wanted_quantity < 0:
                     flash("One of the products in your order has become unavailable!", "danger")
                     response = jsonify(redirect_url=url_for('shop.cart'))
@@ -71,6 +74,9 @@ def create():
         if products:
             for x in products:
                 wanted_quantity = cart_items[str(x.id)]
+                if wanted_quantity == 0:
+                    products.remove(x)
+                    break
                 if x.quantity - wanted_quantity < 0:
                     flash("One of the products in your order has become unavailable!", "danger")
                     response = jsonify(redirect_url=url_for('shop.cart'))
