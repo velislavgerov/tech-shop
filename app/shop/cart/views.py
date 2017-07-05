@@ -31,8 +31,17 @@ def cart():
             q = quantities[x.id]
         else:
             q = quantities[str(x.id)]
-        x.quantity = q
-        x.price = q*x.price
+        
+        if x.quantity == 0:
+            flash('One of the items you are trying to order has become unavailable', 'warning')
+            x.quantity = 0
+            x.price = 0.
+        elif x.quantity - q < 0:
+            flash('You order quantity for item {} has been reduced due to decreased availability'.format(x.name), 'warning')
+            x.price = x.quantity*x.price
+        else:
+            x.quantity = q
+            x.price = q*x.price
     total = None
     if products:
         total = sum([x.price for x in products])
