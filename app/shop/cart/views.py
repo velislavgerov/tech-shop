@@ -48,6 +48,7 @@ def cart():
                     # TODO:
 
             x.quantity = 0
+            x.total = Decimal(0.)
             x.price = Decimal(0.)
             # update cart item
         elif x.quantity - q < 0:
@@ -61,15 +62,15 @@ def cart():
                 raise
                 # TODO:
 
-            x.price = x.quantity*x.price
+            x.total = x.quantity*x.price
         else:
             if q == 0:
                 flash('Item {} has become available. You can now restore your order'.format(x.name), 'info')
             x.quantity = q
-            x.price = q*x.price
+            x.total = q*x.price
     total = None
     if products:
-        total = sum([x.price for x in products])
+        total = sum([x.total for x in products])
     return render_template('shop/cart.html', products=products, total=total, title="Cart")
 
 @shop.route('/cart/add/<int:id>', methods=['GET','POST'])

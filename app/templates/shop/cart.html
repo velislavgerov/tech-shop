@@ -12,11 +12,12 @@
             <table class="table table-responsive">
               <thead>
                 <tr>
-                  <th width="20%"> Image </th>
-                  <th width="20%"> Name </th>
-                  <th width="20%"> Quantity </th>
-                  <th width="20%"> Price </th>
-                  <th width="20%"> Options </th>
+                  <th width="25">Image</th>
+                  <th width="25%">Name</th>
+                  <th width="10%">Price</th>
+                  <th width="5%"> Quantity</th>
+                  <th width="10%">Total</th>
+                  <th width="25%">Options</th>
                 </tr>
               </thead>
               <tbody>
@@ -24,9 +25,10 @@
                 <tr>
                         <td><img src="{{ url_for('static', filename='uploads/' + product.main_image) if product.main_image }}" style="max-width:100%" alt="{{ product.name }} Main Image"></td>
                   <td>{{ product.name }}</td>
-                  <td>{{ product.quantity }}</td>
-                  <td>{{ product.price }}&#x20AC;</td>
-                  <td>
+                  <td align="right">&#x20AC; {{ product.price }}</td>
+                  <td align="center">{{ product.quantity }}</td>
+                  <td align="right">&#x20AC; {{ product.total }}</td>
+                  <td align="center">
                     <a href="{{ url_for('shop.add_to_cart', id=product.id) }}">
                       <i class="fa fa-plus"></i>
                     </a>
@@ -40,7 +42,7 @@
                 </tr>
               {% endfor %}
                 <tr>
-                    <td>
+                    <td align="right">
                     <a href="{{ url_for('shop.index') }}" class="btn btn-default btn-md">
                 <i class="fa fa-plus"></i>
                 Add Another Product
@@ -48,9 +50,10 @@
 
                     </td>
                     <td></td>
-                    <td>Subtotal:</td>
-                    <td>{{ total }}&#x20AC;</td>
-                    <td><a href="{{ url_for('shop.empty_cart') }}">
+                    <td></td>
+                    <td align="right">Subtotal:</td>
+                    <td align="right">&#x20AC; {{ total }}</td>
+                    <td align="center"><a href="{{ url_for('shop.empty_cart') }}">
                       <i class="fa fa-trash"></i> Empty 
                     </a>
                 </td>
