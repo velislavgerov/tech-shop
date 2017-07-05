@@ -19,7 +19,7 @@ def index():
     category = request.args.get('category')
     categories = Category.query.all()
     if search:
-        products = Product.query.filter(Product.name.like('%{}%'.format(search))).all()
+        products = Product.query.filter(Product.name.ilike('%{}%'.format(search))).all()
     else:
         products = Product.query.all()
     if category:
