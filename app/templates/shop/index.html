@@ -19,6 +19,7 @@
                 {% if categories %}
                 <div class="list-group">
                         <li class="list-group-item"><h5>Category</h5></li>
+                    <a href="{{ url_for('shop.index', sort=sort, search=search) }}" class="list-group-item list-group-item-action {{ 'list-group-item-info' if not category }}">All</a>
                     {% for cat in categories %}
                     <a href="{{ url_for('shop.index', category=cat.name, sort=sort, search=search) }}" class="list-group-item list-group-item-action {{ 'list-group-item-info' if category == cat.name }}">{{cat.name}}</a>
                     {% endfor %}
