@@ -4,19 +4,32 @@
         <div class="row"> 
             <div class="col-lg-3">
                 <form class="input-group" action="/" method="GET">
-                    <input type="text" class="form-control" name="search" placeholder="Search for...">
+                        <input type="text" class="form-control" name="search" placeholder="{{ search if search else 'Search for...'}}">
                     <span class="input-group-btn">
-                            <button type="submit" class="btn btn-outline-success" type="button">Go!</button>
+                            <button type="submit" class="btn btn-outline-info" type="button">Go!</button>
                     </span>
                 </form>
                 <br/>
                 {% if categories %}
                 <div class="list-group">
-                    {% for category in categories %}
-                    <a href="/?category={{category.name}}" class="list-group-item">{{category.name}}</a>
+                        <li class="list-group-item"><h5>Category</h5></li>
+                    {% for cat in categories %}
+                    <a href="{{ url_for('shop.index', category=cat.name, sort=sort, search=search) }}" class="list-group-item list-group-item-action {{ 'list-group-item-info' if category == cat.name }}">{{cat.name}}</a>
                     {% endfor %}
                 </div>
                 {% endif %}
+                <br/>
+                <div class="dropdown">
+                <a class="btn btn-secondary dropdown-toggle" style="width:100%;" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Sort</a>
+                  <div class="dropdown-menu" style="width:100%;" aria-labelledby="dropdownMenuLink">
+                    <a class="dropdown-item" href="{{ url_for('shop.index', sort='price_desc', category=category, search=search)}}">Price (Most Expensive First)</a>
+                    <a class="dropdown-item" href="{{ url_for('shop.index', sort='price_asc', category=category, search=search)}}">Price (Least Expensive First)</a>
+                    <a class="dropdown-item" href="{{ url_for('shop.index', sort='name_asc', category=category, search=search)}}">Product name (A-Z)</a>
+                    <a class="dropdown-item" href="{{ url_for('shop.index', sort='name_desc', category=category, search=search)}}">Product name (Z-A)</a>
+                  </div>
+                </div>
+
+                </br>
             </div>
             <div class="col-lg-9">
                 {% if products %}
@@ -35,7 +48,7 @@
                                     <span class="fa fa-shopping-cart"></span> Add to cart
                                 </a>
                                 {% else %}
-                                <a href="#" class="btn btn-outline-warning btn-sm disabled">
+                                <a href="#" class="btn btn-outline-danger btn-sm disabled">
                                     <span class="fa fa-shopping-cart"></span> Unavailable
                                 </a>
                                 {% endif %}

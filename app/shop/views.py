@@ -17,18 +17,38 @@ def index():
     """
     search = request.args.get('search')
     category = request.args.get('category')
+    sort = request.args.get('sort')
     categories = Category.query.all()
     if search:
-        products = Product.query.filter(Product.name.ilike('%{}%'.format(search))).all()
+        products_query = Product.query.filter(Product.name.ilike('%{}%'.format(search)))
     else:
-        products = Product.query.all()
+        products_query = Product.query
     if category:
         try:
             c_id = Category.query.filter_by(name = category).one()
-            products = Product.query.filter_by(category_id = c_id.id).all()
+            products_query = products_query.filter_by(category_id = c_id.id)
         except:
             raise
-    return render_template('shop/index.html', categories=categories, products=products, title="Welcome")
+
+    if sort:
+        if sort == 'price_desc':
+            products = products_query.order_by(Product.price.desc()).all()
+        elif sort == 'price_asc':
+            products = products_query.order_by(Product.price.asc()).all()
+        elif sort == 'name_desc':
+            products = products_query.order_by(Product.name.desc()).all()
+        else: #name_asc
+            products = products_query.order_by(Product.name.asc()).all()
+    else:
+        products = products_query.all()
+
+    return render_template('shop/index.html', 
+                            category=category,
+                            search=search,
+                            sort=sort,
+                            categories=categories,
+                            products=products,
+                            title="Welcome")
 
 @shop.route('/order/confirm', methods=['GET', 'POST'])
 @login_required
