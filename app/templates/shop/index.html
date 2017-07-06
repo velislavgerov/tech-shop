@@ -4,6 +4,12 @@
         <div class="row"> 
             <div class="col-lg-3">
                 <form class="input-group" action="/" method="GET">
+                        {% if sort %}
+                            <input type="hidden" name="sort" value="{{ sort }}">
+                        {% endif %}
+                        {% if category %}
+                            <input type="hidden" name="category" value="{{ category }}">
+                        {% endif %}
                         <input type="text" class="form-control" name="search" placeholder="{{ search if search else 'Search for...'}}">
                     <span class="input-group-btn">
                             <button type="submit" class="btn btn-outline-info" type="button">Go!</button>
