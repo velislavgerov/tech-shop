@@ -27,6 +27,9 @@ def cart():
         quantities = {x.product_id: x.quantity for x in cart_items.all()}
     else:
         quantities = guest_cart()
+        if not 'quantity' in quantities and not 'price' in quantities:
+            session['cart'] = {}
+            quantities = guest_cart()
     products = Product.query.filter(Product.id.in_(list(quantities.keys()))).all()
     cart_item_vms = []
     for x in products:
