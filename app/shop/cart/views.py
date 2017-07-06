@@ -33,10 +33,37 @@ def cart():
         if current_user.is_authenticated:
             q = quantities[x.id]
         else:
-            q = quantities[str(x.id)]
+            q = quantities[str(x.id)]['quantity']
         cart_item_vm = CartItem(x.name, x.price, x.quantity, q*x.price, x.id, x.main_image)
+
+        # check if price has changed
+        if current_user.is_authenticated:
+            cart_item = cart_items.filter_by(product_id=x.id).first()
+            if cart_item.price != x.price:
+                flash('The price for {} has changed from {} to {}!'.format(x.name,
+                                                                        cart_item.price,
+                                                                        x.price),
+                                                                        'warning')
+                # XXX: Should you update the price and ignore warning, after 1 request?
+                #cart_item.price = x.price
+                #try:
+                #    db.session.merge(cart_item)
+                #    db.session.commit()
+                #except:
+                #    pass #do it next time
+        else:
+            old_price = Decimal(quantities[str(x.id)]['price'])
+            new_price = x.price
+            if new_price != old_price:
+                flash('The price for {} has changed from {} to {}!'.format(x.name,
+                                                                        old_price,
+                                                                        new_price),
+                                                                        'warning')
+                #quantities[str(x.id)]['price'] = str(new_price)
+
+        # check if quantity has changed
         if x.quantity == 0:
-            flash('One of the items you are trying to order has become unavailable', 'warning')
+            flash('{} has become unavailable so it won\'t be part of your order'.format(x.name), 'warning')
             if current_user.is_authenticated:
                 cart_item = cart_items.filter_by(product_id=x.id).first()
                 if not cart_item:
@@ -102,12 +129,13 @@ def add_to_cart(id):
                 db.session.merge(item)
                 db.session.commit()
             else:
-                session['cart'][str(product.id)] += 1
+                session['cart'][str(product.id)]['quantity'] += 1
             flash('Cart item updated.', 'info')
     
     def not_found():
+        product = Product.query.filter_by(id=id).first()
         if current_user.is_authenticated:
-            item = Cart(user_id=current_user.id, product_id=id)
+            item = Cart(user_id=current_user.id, product_id=id, price=product.price)
             try:
                 db.session.add(item)
                 db.session.commit()
@@ -122,7 +150,9 @@ def add_to_cart(id):
                 cart = session['cart']
             except KeyError:
                 cart = {}
-            cart[str(id)] = 1
+            cart[str(id)] = {}
+            cart[str(id)]['price'] = str(product.price)
+            cart[str(id)]['quantity'] = 1
             session['cart'] = cart
 
     handle_item(id, do_work, not_found) 
@@ -162,7 +192,7 @@ def remove_one_cart_item(id):
                 db.session.merge(item)
                 db.session.commit()
             else:
-                session['cart'][str(id)] -= 1
+                session['cart'][str(id)]['quantity'] -= 1
             flash('Cart item updated.', 'info')
         elif item.quantity == 1:
             if current_user.is_authenticated:
@@ -205,7 +235,7 @@ def handle_item(id, do_work, not_found=None):
     else:
         try:
             if str(id) in session['cart']:
-                item = Cart(user_id=None, product_id=id, quantity=session['cart'][str(id)])
+                item = Cart(user_id=None, product_id=id, quantity=session['cart'][str(id)]['quantity'])
         except KeyError:
             pass
 

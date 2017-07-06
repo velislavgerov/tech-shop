@@ -104,6 +104,7 @@ class Cart(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
     quantity = db.Column(db.Integer, default=1, nullable=False)
+    price = db.Column(db.Numeric(10,2), nullable=False)
 
 class OrderStatus(db.Model):
     """Create a table to hold our order statuses"""
