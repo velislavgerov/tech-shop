@@ -28,7 +28,8 @@ def index():
             c_id = Category.query.filter_by(name = category).first()
             if c_id:
                 products_query = products_query.filter_by(category_id = c_id.id)
-            flash('Non-existent category. Displaying results from all categories', 'info')
+            else:
+                flash('Non-existent category. Displaying results from all categories', 'info')
         except:
             raise
 
