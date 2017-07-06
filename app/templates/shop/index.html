@@ -19,16 +19,15 @@
                 </div>
                 {% endif %}
                 <br/>
-                <div class="dropdown">
+                <div class="dropdown {{'show' if sort}}">
                 <a class="btn btn-secondary dropdown-toggle" style="width:100%;" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Sort</a>
-                  <div class="dropdown-menu" style="width:100%;" aria-labelledby="dropdownMenuLink">
-                    <a class="dropdown-item" href="{{ url_for('shop.index', sort='price_desc', category=category, search=search)}}">Price (Most Expensive First)</a>
-                    <a class="dropdown-item" href="{{ url_for('shop.index', sort='price_asc', category=category, search=search)}}">Price (Least Expensive First)</a>
-                    <a class="dropdown-item" href="{{ url_for('shop.index', sort='name_asc', category=category, search=search)}}">Product name (A-Z)</a>
-                    <a class="dropdown-item" href="{{ url_for('shop.index', sort='name_desc', category=category, search=search)}}">Product name (Z-A)</a>
+                <div class="dropdown-menu" style="width:100%;" aria-labelledby="dropdownMenuLink">
+                    <a class="dropdown-item {{ 'active' if sort == 'price_desc'}}" href="{{ url_for('shop.index', sort='price_desc', category=category, search=search)}}">Price (Most Expensive First)</a>
+                    <a class="dropdown-item {{ 'active' if sort == 'price_asc'}}" href="{{ url_for('shop.index', sort='price_asc', category=category, search=search)}}">Price (Least Expensive First)</a>
+                    <a class="dropdown-item {{ 'active' if sort == 'name_asc'}}" href="{{ url_for('shop.index', sort='name_asc', category=category, search=search)}}">Product name (A-Z)</a>
+                    <a class="dropdown-item {{ 'active' if sort == 'name_desc'}}" href="{{ url_for('shop.index', sort='name_desc', category=category, search=search)}}">Product name (Z-A)</a>
                   </div>
-                </div>
-
+                </div> 
                 </br>
             </div>
             <div class="col-lg-9">
