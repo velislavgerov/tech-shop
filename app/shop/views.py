@@ -25,8 +25,10 @@ def index():
         products_query = Product.query
     if category:
         try:
-            c_id = Category.query.filter_by(name = category).one()
-            products_query = products_query.filter_by(category_id = c_id.id)
+            c_id = Category.query.filter_by(name = category).first()
+            if c_id:
+                products_query = products_query.filter_by(category_id = c_id.id)
+            flash('Non-existent category. Displaying results from all categories', 'info')
         except:
             raise
 
@@ -37,7 +39,7 @@ def index():
             products = products_query.order_by(Product.price.asc()).all()
         elif sort == 'name_desc':
             products = products_query.order_by(Product.name.desc()).all()
-        else: #name_asc
+        else: #name_asc if name_asc or else
             products = products_query.order_by(Product.name.asc()).all()
     else:
         products = products_query.all()
