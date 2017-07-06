@@ -37,17 +37,24 @@ def cart():
         cart_item_vm = CartItem(x.name, x.price, x.quantity, q*x.price, x.id, x.main_image)
         if x.quantity == 0:
             flash('One of the items you are trying to order has become unavailable', 'warning')
-            cart_item = cart_items.filter_by(product_id=x.id).first()
-            if not cart_item:
-                print('Item has become unavailable??????') # TODO: WHAT?
-            if cart_item.quantity > 0:
-                cart_item.quantity = x.quantity
-                try:
-                    db.session.merge(cart_item)
-                    db.session.commit()
-                except:
-                    raise
-                    # TODO:
+            if current_user.is_authenticated:
+                cart_item = cart_items.filter_by(product_id=x.id).first()
+                if not cart_item:
+                    print('Item has become unavailable??????') # TODO: WHAT?
+                if cart_item.quantity > 0:
+                    cart_item.quantity = x.quantity
+                    try:
+                        db.session.merge(cart_item)
+                        db.session.commit()
+                    except:
+                        raise
+                        # TODO:
+            else:
+                if q > 0:
+                    quantities[str(x.id)] = x.quantity
+                    #session['cart'] = quantities
+
+                
 
             cart_item_vm.quantity = 0
             cart_item_vm.total = Decimal(0.)
@@ -55,14 +62,17 @@ def cart():
         elif x.quantity - q < 0:
             # XXX: BUG
             flash('You order quantity for item {} has been reduced due to decreased availability'.format(x.name), 'warning')
-            cart_item = cart_items.filter_by(product_id=x.id).first()
-            cart_item.quantity = x.quantity
-            try:
-                db.session.merge(cart_item)
-                db.session.commit()
-            except:
-                raise
-                # TODO:
+            if current_user.is_authenticated:
+                cart_item = cart_items.filter_by(product_id=x.id).first()
+                cart_item.quantity = x.quantity
+                try:
+                    db.session.merge(cart_item)
+                    db.session.commit()
+                except:
+                    raise
+                    # TODO:
+            else:
+                quantities[str(x.id)] = x.quantity
 
             cart_item_vm.total = x.quantity*x.price
         else:
