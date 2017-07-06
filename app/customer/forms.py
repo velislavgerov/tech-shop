@@ -26,7 +26,7 @@ class RegistrationForm(FlaskForm):
     last_name = StringField('Last name', validators=[DataRequired()])
     password = PasswordField('Password', validators=[
                                         DataRequired(),
-                                        EqualTo('confirm_password')
+                                        EqualTo('confirm_password', 'The passwords you entered did not match.')
                                         ])
     confirm_password = PasswordField('Confirm Password')
     recaptcha = RecaptchaField(validators=[Recaptcha('Are you a bot or a human?')])
@@ -35,6 +35,11 @@ class RegistrationForm(FlaskForm):
     def validate_email(self, field):
         if User.query.filter_by(email=field.data).first():
             raise ValidationError('Email is already in use.')
+    
+    def validate_username(self, field):
+        if User.query.filter_by(username=field.data).first():
+            raise ValidationError('Username is already in use.')
+
 
 class LoginForm(FlaskForm):
     """Form for users to login."""
