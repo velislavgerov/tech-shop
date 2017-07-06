@@ -6,6 +6,7 @@ from .. import shop
 
 from ... import db
 from ...models import Cart, Product
+from ...view_models import CartItem
 
 from decimal import Decimal
 
@@ -22,56 +23,57 @@ def cart():
     List all items in cart
     """
     if current_user.is_authenticated:
-        cart_items = Cart.query.filter_by(user_id=current_user.id).all()
-        quantities = {x.product_id: x.quantity for x in cart_items}
+        cart_items = Cart.query.filter_by(user_id=current_user.id)
+        quantities = {x.product_id: x.quantity for x in cart_items.all()}
     else:
         quantities = guest_cart()
     products = Product.query.filter(Product.id.in_(list(quantities.keys()))).all()
+    cart_item_vms = []
     for x in products:
         if current_user.is_authenticated:
             q = quantities[x.id]
         else:
             q = quantities[str(x.id)]
-        
+        cart_item_vm = CartItem(x.name, x.price, x.quantity, q*x.price, x.id, x.main_image)
         if x.quantity == 0:
             flash('One of the items you are trying to order has become unavailable', 'warning')
-            item = Cart.query.filter_by(user_id=current_user.id, product_id=x.id).first()
-            if not item:
+            cart_item = cart_items.filter_by(product_id=x.id).first()
+            if not cart_item:
                 print('Item has become unavailable??????') # TODO: WHAT?
-            if item.quantity > 0:
-                item.quantity = x.quantity
+            if cart_item.quantity > 0:
+                cart_item.quantity = x.quantity
                 try:
-                    db.session.merge(item)
+                    db.session.merge(cart_item)
                     db.session.commit()
                 except:
                     raise
                     # TODO:
 
-            x.quantity = 0
-            x.total = Decimal(0.)
-            x.price = Decimal(0.)
-            # update cart item
+            cart_item_vm.quantity = 0
+            cart_item_vm.total = Decimal(0.)
+            cart_item_vm.price = Decimal(0.)
         elif x.quantity - q < 0:
+            # XXX: BUG
             flash('You order quantity for item {} has been reduced due to decreased availability'.format(x.name), 'warning')
-            item = Cart.query.filter_by(user_id=current_user.id, product_id=x.id).first()
-            item.quantity = x.quantity
+            cart_item = cart_items.filter_by(product_id=x.id).first()
+            cart_item.quantity = x.quantity
             try:
-                db.session.merge(item)
+                db.session.merge(cart_item)
                 db.session.commit()
             except:
                 raise
                 # TODO:
 
-            x.total = x.quantity*x.price
+            cart_item_vm.total = x.quantity*x.price
         else:
             if q == 0:
                 flash('Item {} has become available. You can now restore your order'.format(x.name), 'info')
-            x.quantity = q
-            x.total = q*x.price
-    total = None
-    if products:
-        total = sum([x.total for x in products])
-    return render_template('shop/cart.html', products=products, total=total, title="Cart")
+            cart_item_vm.quantity = q
+            cart_item_vm.total = q*x.price
+        cart_item_vms.append(cart_item_vm)
+    
+    total = sum([x.total for x in cart_item_vms])
+    return render_template('shop/cart.html', products=cart_item_vms, total=total, title="Cart")
 
 @shop.route('/cart/add/<int:id>', methods=['GET','POST'])
 def add_to_cart(id):
