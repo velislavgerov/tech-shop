@@ -73,7 +73,7 @@ def create():
         products = Product.query.filter(Product.id.in_(list(cart_items.keys()))).all() #POF
         if products:
             for x in products:
-                wanted_quantity = cart_items[str(x.id)]
+                wanted_quantity = cart_items[str(x.id)]['quantity']
                 if wanted_quantity == 0:
                     products.remove(x)
                     break
@@ -96,12 +96,13 @@ def create():
         items.append({
             "name": item.name,
             "description": item.description,
-            "quantity": str(cart_items[str(item.id)]) if current_user.is_anonymous \
+            "quantity": str(cart_items[str(item.id)]['quantity']) if current_user.is_anonymous \
                     else str(quantities[item.id]),
             "price": str(item.price),
             "sku": str(item.id),
             "currency": "EUR"
         })
+    print(items)
     payment = Payment({
         "intent": "sale",
         "experience_profile_id": web_profile_id(),
