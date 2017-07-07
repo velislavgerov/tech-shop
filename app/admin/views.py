@@ -30,6 +30,7 @@ def dashboard():
     for activity in activities:
         date = datetime.utcnow()
         activity.timeago = (timeago.format(activity.transaction.issued_at, date))
+        print(activity.transaction.user)
     return render_template('admin/admin_dashboard.html', activities=activities, title="Dashboard")
 
 

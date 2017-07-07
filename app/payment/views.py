@@ -102,7 +102,7 @@ def create():
             "sku": str(item.id),
             "currency": "EUR"
         })
-    print(items)
+    #print(items)
     payment = Payment({
         "intent": "sale",
         "experience_profile_id": web_profile_id(),

@@ -22,6 +22,7 @@ def cart():
     """
     List all items in cart
     """
+    #print(guest_cart())
     if current_user.is_authenticated:
         cart_items = Cart.query.filter_by(user_id=current_user.id)
         quantities = {x.product_id: x.quantity for x in cart_items.all()}
@@ -150,7 +151,10 @@ def add_to_cart(id):
             cart[str(id)] = {}
             cart[str(id)]['price'] = str(product.price)
             cart[str(id)]['quantity'] = 1
-  
+            print('here',cart)
+            session['cart'].update(cart)
+            print(session['cart'])
+
     handle_item(id, do_work, not_found) 
  
     return redirect(url_for('shop.cart'))

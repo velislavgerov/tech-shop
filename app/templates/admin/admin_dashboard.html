@@ -23,17 +23,19 @@
     {% if activities %}
     <div class="list-group">
         {% for activity in activities %}
-          <a href="{{ url_for('admin.edit_product', id=activity.object_version.id) if activity.verb != 'delete' else '#'}}" class="list-group-item list-group-item-action flex-column align-items-start">
+        <a href="{%if activity.object_type == 'Product'%}{{ url_for('admin.edit_product', id=activity.object_version.id) if activity.verb != 'delete' else '#'}}{%elif activity.object_type == 'Order'%}{{url_for('customer.order_detail', id=activity.object_version.id, u_id=activity.object_version.user_id)}}{% endif %}" class="list-group-item list-group-item-action flex-column align-items-start">
             <div class="d-flex w-100 justify-content-between">
                     <h5 class="mb-1 text-{% if activity.verb == 'create' %}success{% elif activity.verb == 'update'%}warning{% else %}danger{%endif%}">{{ activity.object_type}} {{ activity.verb }}</h5>
             <small>{{activity.timeago}}</small>
             </div>
-            <p class="mb-1"><em>{{activity.object_version.name}}</em> was {{activity.verb}}d by <strong>{{activity.transaction.user.username}}</strong>.</p>
+            <p class="mb-1"><em>{{activity.object_version.name}}</em> was {{activity.verb}}d by <strong>{{activity.transaction.user.username if activity.transaction.user else 'guest'}}</strong>.</p>
             {% if activity.verb == 'update' %}
               <ul class="list-unstyled">
                       <ul>
               {% for change in activity.object_version.changeset %}
+                {% if not change == 'updated_at' %}
                                     <li><u>{{change}}</u> changed from <em>'{{activity.object_version.changeset[change][0]}}'</em> to <em>'{{activity.object_version.changeset[change][1]}}'.</em></li>
+                {% endif %}
               {% endfor %}
                       </ul></ul>
             {% endif %}
