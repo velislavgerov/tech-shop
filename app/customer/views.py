@@ -31,7 +31,7 @@ def register():
                     password=form.password.data,
                     user_role='customer',
                     is_registered=True,
-                    created_at=datetime.utcnow())
+                    created_at=datetime.now())
         
         # add user to the database
         db.session.add(user)
@@ -183,7 +183,7 @@ def order_detail(id, u_id):
         form = StatusForm()
         if form.validate_on_submit():
             order.status = form.status.data
-            order.updated_at = datetime.utcnow()
+            order.updated_at = datetime.now()
             try:
                 db.session.merge(order)
                 db.session.commit()
@@ -207,7 +207,7 @@ def cancel_order(id):
         flash('Order not found.', 'warning')
         return redirect(url_for('shop.index'))
     order.cancelled = True
-    order.updated = datetime.utcnow()
+    order.updated = datetime.now()
     try:
         db.session.merge(order)
         db.session.commit()

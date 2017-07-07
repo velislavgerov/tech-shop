@@ -164,7 +164,7 @@ def execute():
             guest_name = 'guest_{}'.format(''.join(random.choice(string.ascii_uppercase) for i in range(12)))
             guest = User(
                     username=guest_name,
-                    created_at=datetime.utcnow(),
+                    created_at=datetime.now(),
                     user_role='customer',
                     is_registered=False
                     )
@@ -185,8 +185,8 @@ def execute():
         print(payment)
         try:
             order = Order(
-                created_at=datetime.utcnow(),
-                updated_at=datetime.utcnow(),
+                created_at=datetime.now(),
+                updated_at=datetime.now(),
                 payment_id=payment.id,
                 user_id=u_id,
                 total_ammount=payment.transactions[0].amount.total,

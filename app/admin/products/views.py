@@ -56,9 +56,9 @@ def add_product():
                             price=form.price.data,
                             quantity=form.quantity.data,
                             added_by=current_user.email,
-                            added_at=datetime.utcnow(),
+                            added_at=datetime.now(),
                             updated_by=current_user.email,
-                            updated_at=datetime.utcnow()
+                            updated_at=datetime.now()
                             )
         try:
             # add product to the database
@@ -108,7 +108,7 @@ def edit_product(id):
         product.price=form.price.data,
         product.quantity=form.quantity.data,
         product.updated_by=current_user.email,
-        product.updated_at=datetime.utcnow()
+        product.updated_at=datetime.now()
         
         # create activity
         db.session.flush() # creates product.id

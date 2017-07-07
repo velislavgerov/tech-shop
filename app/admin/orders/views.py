@@ -97,7 +97,7 @@ def refund_order(id):
         status = OrderStatus.query.filter_by(name='Refunded').first()
         order.status_id = status.id
         order.cancelled = True
-        order.updated_at = datetime.utcnow()
+        order.updated_at = datetime.now()
         order_items = OrderItem.query.filter_by(order_id=order.id).all()
         product_items = []
         try:

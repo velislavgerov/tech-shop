@@ -52,7 +52,7 @@ def register():
                     password=form.password.data,
                     user_role='admin',
                     is_registered=True,
-                    created_at=datetime.utcnow())
+                    created_at=datetime.now())
         
         # add user to the database
         db.session.add(user)

@@ -65,7 +65,7 @@ def order_detail(id, u_id):
             form = StatusForm()
             if form.validate_on_submit():
                 order.status = form.status.data
-                order.updated_at = datetime.utcnow()
+                order.updated_at = datetime.now()
                 try:
                     db.session.merge(order)
                     db.session.commit()
