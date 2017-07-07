@@ -27,9 +27,6 @@ def cart():
         quantities = {x.product_id: x.quantity for x in cart_items.all()}
     else:
         quantities = guest_cart()
-        if not 'quantity' in quantities and not 'price' in quantities:
-            session['cart'] = {}
-            quantities = guest_cart()
     products = Product.query.filter(Product.id.in_(list(quantities.keys()))).all()
     cart_item_vms = []
     for x in products:
@@ -149,15 +146,11 @@ def add_to_cart(id):
                 raise
                 flash('Sorry, you can\'t do that right now.', 'warning')
         else:
-            try:
-                cart = session['cart']
-            except KeyError:
-                cart = {}
+            cart = guest_cart()
             cart[str(id)] = {}
             cart[str(id)]['price'] = str(product.price)
             cart[str(id)]['quantity'] = 1
-            session['cart'] = cart
-
+  
     handle_item(id, do_work, not_found) 
  
     return redirect(url_for('shop.cart'))
@@ -238,7 +231,7 @@ def handle_item(id, do_work, not_found=None):
     else:
         try:
             if str(id) in session['cart']:
-                item = Cart(user_id=None, product_id=id, quantity=session['cart'][str(id)]['quantity'])
+                item = Cart(user_id=None, product_id=id, quantity=session['cart'][str(id)]['quantity'], price=Decimal(session['cart'][str(id)]['price']))
         except KeyError:
             pass
 
