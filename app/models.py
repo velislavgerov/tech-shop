@@ -157,3 +157,6 @@ class OrderItem(db.Model):
     product = db.relationship("Product", backref="parents")
 
 sa.orm.configure_mappers()
+
+Activity = activity_plugin.activity_cls
+

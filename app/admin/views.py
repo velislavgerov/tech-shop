@@ -8,9 +8,10 @@ from . import admin
 from ..customer.forms import LoginForm, RegistrationForm, AccountForm
 
 from .. import db
-from ..models import User, Order, Product
+from ..models import User, Order, Activity
 
 from datetime import datetime
+import timeago
 
 def check_admin():
     """
@@ -25,11 +26,12 @@ def dashboard():
     """
     Render the admin dashboard template on the /admin/dashboard route
     """
-    Transaction = transaction_class(Product)
-    transactions = Transaction.query.all()
-    for x in transactions:
-        print(x.__dict__)
-    return render_template('admin/admin_dashboard.html', title="Dashboard")
+    activities = Activity.query.order_by(Activity.id.desc()).all()
+    print(activities[0].object_version.name)
+    for activity in activities:
+        date = datetime.now()
+        activity.timeago = (timeago.format(activity.transaction.issued_at, date))
+    return render_template('admin/admin_dashboard.html', activities=activities, title="Dashboard")
 
 
 @admin.route('/register', methods=['GET', 'POST'])

@@ -7,7 +7,7 @@ from sqlalchemy_continuum.plugins import ActivityPlugin
 from .. import admin
 from .forms import ProductForm
 from ... import db
-from ...models import Product, Category, activity_plugin
+from ...models import Product, Category, Activity
 
 from os.path import join, dirname, relpath
 from os import remove
@@ -64,7 +64,6 @@ def add_product():
             # add product to the database
             db.session.add(product)
             db.session.flush() # creates product.id
-            Activity = activity_plugin.activity_cls
             activity = Activity(verb='create', object=product)
             db.session.add(activity)
             db.session.commit()
@@ -113,7 +112,6 @@ def edit_product(id):
         
         # create activity
         db.session.flush() # creates product.id
-        Activity = activity_plugin.activity_cls
         activity = Activity(verb='update', object=product)
         db.session.add(activity)
 
@@ -144,7 +142,6 @@ def delete_product(id):
     db.session.delete(product)
     # create activity
     db.session.flush() # creates product.id
-    Activity = activity_plugin.activity_cls
     activity = Activity(verb='delete', object=product)
     db.session.add(activity)
     db.session.commit()

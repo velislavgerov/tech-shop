@@ -5,6 +5,51 @@
   <div class="center">
     <h1 style="text-align:center;">Admin Dashboard</h1>
     <hr class="intro-divider">
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link active" href="#">Recent Activity</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Metrics</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Sales</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link disabled" href="#">Something else</a>
+          </li>
+    </ul>
+    {% if activities %}
+    <div class="list-group">
+        {% for activity in activities %}
+          <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
+            <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1 text-{% if activity.verb == 'create' %}success{% elif activity.verb == 'update'%}warning{% else %}danger{%endif%}">{{ activity.object_type}} {{ activity.verb }}</h5>
+            <small>{{activity.timeago}}</small>
+            </div>
+            <p class="mb-1"><em>{{activity.object_version.name}}</em> was {{activity.verb}}d by <strong>{{activity.transaction.user.username}}</strong>.</p>
+            <small>Click to get details.</small>
+          </a>
+        {% endfor %}
+          <!--<a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
+            <div class="d-flex w-100 justify-content-between">
+              <h5 class="mb-1 text-warning">A product was updated</h5>
+              <small class="text-muted">3 days ago</small>
+            </div>
+            <p class="mb-1">Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit.</p>
+            <small class="text-muted">Donec id elit non mi porta.</small>
+          </a>
+          <a href="#" class="list-group-item  list-group-item-action flex-column align-items-start">
+            <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1 text-danger">A product was deleted</h5>
+              <small class="text-muted">3 days ago</small>
+            </div>
+            <p class="mb-1">User admin has deleted product <strong>Apple II</strong></p>
+            <small class="text-muted">Click to review changes.</small>
+          </a>-->
+        </div>
+        {% endif %}
     <p>This page may contain summary data. In example, number of visitors, number of customers, number of orders, products, etc.</p>
   </div>
 </div>
