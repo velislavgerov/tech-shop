@@ -8,8 +8,8 @@ from app import db, login_manager
 
 from enum import Enum
 
-
-make_versioned(plugins=[FlaskPlugin(), ActivityPlugin()])
+activity_plugin = ActivityPlugin()
+make_versioned(plugins=[FlaskPlugin(), activity_plugin])
 
 class User(UserMixin, db.Model):
     """Crete a User table."""

@@ -2,16 +2,16 @@ from flask import abort, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
 from werkzeug.utils import secure_filename
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy_continuum.plugins import ActivityPlugin
 
 from .. import admin
 from .forms import ProductForm
 from ... import db
-from ...models import Product, Category
+from ...models import Product, Category, activity_plugin
 
 from os.path import join, dirname, relpath
 from os import remove
 from datetime import datetime
-
 
 def check_admin():
     """
@@ -63,6 +63,10 @@ def add_product():
         try:
             # add product to the database
             db.session.add(product)
+            db.session.flush() # creates product.id
+            Activity = activity_plugin.activity_cls
+            activity = Activity(verb='create', object=product)
+            db.session.add(activity)
             db.session.commit()
             # XXX: raw save might not be a good idea! (overwrite?)
             flash('You have successfully added a new product', 'info')
@@ -106,6 +110,13 @@ def edit_product(id):
         product.quantity=form.quantity.data,
         product.updated_by=current_user.email,
         product.updated_at=datetime.utcnow()
+        
+        # create activity
+        db.session.flush() # creates product.id
+        Activity = activity_plugin.activity_cls
+        activity = Activity(verb='update', object=product)
+        db.session.add(activity)
+
         db.session.commit()
         flash('You have successfully edited the product.', 'info')
 
@@ -131,6 +142,11 @@ def delete_product(id):
 
     product = Product.query.get_or_404(id)
     db.session.delete(product)
+    # create activity
+    db.session.flush() # creates product.id
+    Activity = activity_plugin.activity_cls
+    activity = Activity(verb='delete', object=product)
+    db.session.add(activity)
     db.session.commit()
     
     # delete image file
