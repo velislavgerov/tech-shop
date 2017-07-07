@@ -1,9 +1,15 @@
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy_continuum.plugins import FlaskPlugin, ActivityPlugin
+from sqlalchemy_continuum import make_versioned
+import sqlalchemy as sa
 
 from app import db, login_manager
 
 from enum import Enum
+
+
+make_versioned(plugins=[FlaskPlugin(), ActivityPlugin()])
 
 class User(UserMixin, db.Model):
     """Crete a User table."""
@@ -47,8 +53,9 @@ class User(UserMixin, db.Model):
 class Product(db.Model):
     """Create a Product table."""
     
+    __versioned__ = {}
     __tablename__ = 'products'
-    
+
     id = db.Column(db.Integer, primary_key=True)
     category_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
     subcategory_id = db.Column(db.Integer, db.ForeignKey('subcategories.id'))
@@ -117,7 +124,8 @@ class OrderStatus(db.Model):
 
 class Order(db.Model):
     """Create a table to hold our orders"""
-
+    
+    __versioned__ = {}
     __tablename__ = 'orders'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -147,3 +155,5 @@ class OrderItem(db.Model):
     quantity = db.Column(db.Integer, default=1, nullable=False)
     price = db.Column(db.Numeric(10,2), nullable=False)
     product = db.relationship("Product", backref="parents")
+
+sa.orm.configure_mappers()

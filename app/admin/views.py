@@ -1,11 +1,14 @@
 from flask import flash, abort, redirect, render_template, url_for
 from flask_login import login_required, login_user, logout_user, current_user
 
+from sqlalchemy_continuum import changeset, version_class, transaction_class
+
+
 from . import admin
 from ..customer.forms import LoginForm, RegistrationForm, AccountForm
 
 from .. import db
-from ..models import User, Order
+from ..models import User, Order, Product
 
 from datetime import datetime
 
@@ -22,8 +25,10 @@ def dashboard():
     """
     Render the admin dashboard template on the /admin/dashboard route
     """
-    check_admin()
-
+    Transaction = transaction_class(Product)
+    transactions = Transaction.query.all()
+    for x in transactions:
+        print(x.__dict__)
     return render_template('admin/admin_dashboard.html', title="Dashboard")
 
 

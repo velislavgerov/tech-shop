@@ -3,6 +3,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_bootstrap import Bootstrap
 from flask_wtf.csrf import CSRFProtect
+from flask_migrate import Migrate
+import flask_login
 
 # Local import
 from instance.config import app_config
@@ -17,7 +19,6 @@ def create_app(config_name):
     app.config.from_pyfile('config.py')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
-
     Bootstrap(app)
     #csrf.init_app(app)
 
@@ -27,6 +28,8 @@ def create_app(config_name):
     login_manager.login_view = "customer.login"
     
     from app import models
+    
+    migrate = Migrate(app, db)
 
     from .admin import admin as admin_blueprint
     app.register_blueprint(admin_blueprint, url_prefix='/admin')
