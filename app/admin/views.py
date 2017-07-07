@@ -27,9 +27,8 @@ def dashboard():
     Render the admin dashboard template on the /admin/dashboard route
     """
     activities = Activity.query.order_by(Activity.id.desc()).all()
-    print(activities[0].object_version.name)
     for activity in activities:
-        date = datetime.now()
+        date = datetime.utcnow()
         activity.timeago = (timeago.format(activity.transaction.issued_at, date))
     return render_template('admin/admin_dashboard.html', activities=activities, title="Dashboard")
 

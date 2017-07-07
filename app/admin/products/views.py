@@ -68,7 +68,7 @@ def add_product():
             db.session.add(activity)
             db.session.commit()
             # XXX: raw save might not be a good idea! (overwrite?)
-            flash('You have successfully added a new product', 'info')
+            flash('You have successfully added a new product', 'success')
         except IntegrityError: # relies on unique name in the database!
             raise
             flash('Error: product name already exists.', 'warning')

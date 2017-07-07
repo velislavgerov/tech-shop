@@ -23,34 +23,22 @@
     {% if activities %}
     <div class="list-group">
         {% for activity in activities %}
-          <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
+          <a href="{{ url_for('admin.edit_product', id=activity.object_version.id) if activity.verb == 'create' else '#'}}" class="list-group-item list-group-item-action flex-column align-items-start">
             <div class="d-flex w-100 justify-content-between">
                     <h5 class="mb-1 text-{% if activity.verb == 'create' %}success{% elif activity.verb == 'update'%}warning{% else %}danger{%endif%}">{{ activity.object_type}} {{ activity.verb }}</h5>
             <small>{{activity.timeago}}</small>
             </div>
             <p class="mb-1"><em>{{activity.object_version.name}}</em> was {{activity.verb}}d by <strong>{{activity.transaction.user.username}}</strong>.</p>
-            <small>Click to get details.</small>
+            {% if activity.verb == 'update' %}
+            <p class="mb-1">name changed from 'asd' to 'adsdf</p>
+            {% endif %}
+            {% if activity.verb == 'create'%}<small>Click to edit.</small>{% endif %}
           </a>
         {% endfor %}
-          <!--<a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
-            <div class="d-flex w-100 justify-content-between">
-              <h5 class="mb-1 text-warning">A product was updated</h5>
-              <small class="text-muted">3 days ago</small>
-            </div>
-            <p class="mb-1">Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit.</p>
-            <small class="text-muted">Donec id elit non mi porta.</small>
-          </a>
-          <a href="#" class="list-group-item  list-group-item-action flex-column align-items-start">
-            <div class="d-flex w-100 justify-content-between">
-                    <h5 class="mb-1 text-danger">A product was deleted</h5>
-              <small class="text-muted">3 days ago</small>
-            </div>
-            <p class="mb-1">User admin has deleted product <strong>Apple II</strong></p>
-            <small class="text-muted">Click to review changes.</small>
-          </a>-->
         </div>
+        {% else %}
+        <h3 style="text-align:center; margin-top:10%">There has been no activity yet.</h3>
         {% endif %}
-    <p>This page may contain summary data. In example, number of visitors, number of customers, number of orders, products, etc.</p>
   </div>
 </div>
 {% endblock %}
