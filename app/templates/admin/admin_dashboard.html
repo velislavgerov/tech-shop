@@ -33,7 +33,7 @@
               <ul class="list-unstyled">
                       <ul>
               {% for change in activity.object_version.changeset %}
-                                    <li><u>{{change}}</u> changed from <em>'{{activity.object_version.changeset[change][0]}}'</em> to <em>'{{activity.object_version.changeset[change][1]}}'</em></li>
+                                    <li><u>{{change}}</u> changed from <em>'{{activity.object_version.changeset[change][0]}}'</em> to <em>'{{activity.object_version.changeset[change][1]}}'.</em></li>
               {% endfor %}
                       </ul></ul>
             {% endif %}

@@ -4,7 +4,7 @@ from paypalrestsdk import Payment, WebProfile, Sale, ResourceNotFound
 
 from . import payment
 
-from ..models import Product, Category, Cart, Order, OrderItem, OrderStatus, User
+from ..models import Product, Category, Cart, Order, OrderItem, OrderStatus, User, Activity
 from .. import db
 
 from datetime import datetime
@@ -174,7 +174,7 @@ def execute():
                 u_id = guest.id
                 session['guest'] = guest.id
             except:
-                raise #TODO ErrorHandling
+                refund_action(paymentID)
         else:
             u_id = current_user.id
         
@@ -196,6 +196,7 @@ def execute():
             db.session.add(order)
             db.session.flush()
         except:
+            refund_action(paymentID)
             flash('Could not connect to database. Please, try again later', 'warning')
             response = jsonify(redirect_url=url_for('shop.cart'))
             response.status_code = 302
@@ -214,12 +215,14 @@ def execute():
             # decrese product count
             product = Product.query.filter_by(id=item.sku).first()
             if not product:
+                refund_action(paymentID)
                 flash('Sorry, we can\'t find the product you are trying to order!', 'danger')
                 response = jsonify(redirect_url=url_for('shop.cart'))
                 response.status_code = 302
                 return response
             product.quantity -= item.quantity
             if product.quantity < 0:
+                refund_action(paymentID)
                 flash('One of the products you are trying to order is no longer available!', 'danger')
                 response = jsonify(redirect_url=url_for('shop.cart'))
                 response.status_code = 302
@@ -241,11 +244,14 @@ def execute():
                 session['cart'] = {}
             # update product quantities
             for item in product_updates:
-                db.session.merge(item) 
+                db.session.merge(item)
+                db.session.flush()
+                activity = Activity(verb='update', object=item)
+                db.session.add(activity)
             # commit transaction
             db.session.commit()
         except:
-            raise #TODO: ErrorHandling
+            refund_action(paymentID)
             flash("You can't do this right now. Please, try again later", 'warning')
             response = jsonify(redirect_url=url_for('shop.cart'))
             response.status_code = 302
@@ -304,6 +310,10 @@ def refund(id):
     if current_user.user_role != 'admin':
         abort(403)
     # only admin can refund
+    refund_action(id)
+    return redirect(url_for('admin.list_orders'))
+
+def refund_action(id):
     try:
         payment = Payment.find(id)
     except ResourceNotFound:
@@ -328,4 +338,4 @@ def refund(id):
     else:
         flash(refund.error['message'], 'warning')
         print(refund.error)
-    return redirect(url_for('admin.list_orders'))
+
