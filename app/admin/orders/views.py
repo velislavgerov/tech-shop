@@ -6,7 +6,7 @@ from sqlalchemy import desc
 from ...helpers import check_admin, redirect_url
 from .. import admin
 from ... import db
-from ...models import Order, OrderStatus, OrderItem
+from ...models import Order, OrderStatus, OrderItem, Activity
 from .forms import StatusForm
 
 from datetime import datetime
@@ -55,6 +55,8 @@ def remove_order(id):
     else:
         try:
             db.session.delete(order)
+            activity = Activity(verb='delete', object=order)
+            db.session.add(activity)
             db.session.commit()
             flash('Order deleted.')
         except:
@@ -106,6 +108,9 @@ def refund_order(id):
                 product.quantity += item.quantity
                 db.session.merge(item)
             db.session.merge(order)
+            db.session.flush()
+            activity = Activity(verb='update', object=order)
+            db.session.add(activity)
             db.session.commit()
         except:
             flash('Items counld not be returned to inventory', "warning")

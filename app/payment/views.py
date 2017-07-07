@@ -195,6 +195,8 @@ def execute():
 
             db.session.add(order)
             db.session.flush()
+            activity = Activity(verb='create', object=order)
+            db.session.add(activity)
         except:
             refund_action(paymentID)
             flash('Could not connect to database. Please, try again later', 'warning')

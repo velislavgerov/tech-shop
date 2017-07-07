@@ -12,7 +12,7 @@ from ..admin.orders.forms import StatusForm
 from .forms import LoginForm, RegistrationForm, AccountForm
 
 from .. import db
-from ..models import User, Order, OrderStatus
+from ..models import User, Order, OrderStatus, Activity
 
 from datetime import datetime
 
@@ -186,6 +186,8 @@ def order_detail(id, u_id):
             order.updated_at = datetime.now()
             try:
                 db.session.merge(order)
+                activity = Activity(verb='update', object=order)
+                db.session.add(activity)
                 db.session.commit()
             except:
                 flash('You can\'t do this right now.', 'warning')
@@ -210,6 +212,9 @@ def cancel_order(id):
     order.updated = datetime.now()
     try:
         db.session.merge(order)
+        db.session.flush()
+        activity = Activity(verb='update', object=order)
+        db.session.add(activity)
         db.session.commit()
         flash("Your request was successful.", 'info')
     except:
