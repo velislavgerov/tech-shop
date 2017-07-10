@@ -147,13 +147,13 @@ def add_to_cart(id):
                 raise
                 flash('Sorry, you can\'t do that right now.', 'warning')
         else:
-            cart = guest_cart()
-            cart[str(id)] = {}
-            cart[str(id)]['price'] = str(product.price)
-            cart[str(id)]['quantity'] = 1
-            print('here',cart)
-            session['cart'].update(cart)
-            print(session['cart'])
+            if not 'cart' in session:
+                session['cart'] = {}
+            cart_item = {}
+            cart_item['price'] = str(product.price)
+            cart_item['quantity'] = 1
+            session['cart'][str(id)] = cart_item
+            session.update(session['cart'])
 
     handle_item(id, do_work, not_found) 
  
@@ -235,7 +235,7 @@ def handle_item(id, do_work, not_found=None):
     else:
         try:
             if str(id) in session['cart']:
-                item = Cart(user_id=None, product_id=id, quantity=session['cart'][str(id)]['quantity'], price=Decimal(session['cart'][str(id)]['price']))
+                item = Cart(user_id=None, product_id=id, quantity=session['cart'][str(id)]['quantity'])
         except KeyError:
             pass
 
